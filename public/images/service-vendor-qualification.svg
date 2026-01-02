@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1200" viewBox="0 0 1600 1200">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#f3f7ff"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="70%" cy="22%" r="85%">
+      <stop offset="0" stop-color="#005EB8" stop-opacity="0.18"/>
+      <stop offset="0.6" stop-color="#005EB8" stop-opacity="0.05"/>
+      <stop offset="1" stop-color="#005EB8" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="1200" fill="url(#bg)"/>
+  <rect width="1600" height="1200" fill="url(#glow)"/>
+
+  <!-- checklist card -->
+  <g transform="translate(300 250)">
+    <rect x="0" y="0" width="1000" height="700" rx="34" fill="#005EB8" opacity="0.08"/>
+    <g transform="translate(90 120)" opacity="0.22" stroke="#0b1b2b" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M0 40 l30 30 70-90"/>
+      <path d="M0 220 l30 30 70-90"/>
+      <path d="M0 400 l30 30 70-90"/>
+    </g>
+    <g transform="translate(240 140)" opacity="0.16" fill="#0b1b2b">
+      <rect x="0" y="0" width="620" height="14" rx="7"/>
+      <rect x="0" y="36" width="520" height="12" rx="6"/>
+      <rect x="0" y="180" width="640" height="14" rx="7"/>
+      <rect x="0" y="216" width="460" height="12" rx="6"/>
+      <rect x="0" y="360" width="560" height="14" rx="7"/>
+      <rect x="0" y="396" width="500" height="12" rx="6"/>
+    </g>
+  </g>
+
+  <path d="M0 980 C320 920, 520 950, 760 1000 C1000 1050, 1260 1090, 1600 1040 L1600 1200 L0 1200 Z" fill="#005EB8" opacity="0.06"/>
+</svg>

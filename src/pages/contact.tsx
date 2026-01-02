@@ -1,44 +1,54 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { MessageCircle } from "lucide-react";
+import { Download } from "lucide-react";
 import { Seo } from "@/components/seo";
-import { Container, Divider, Section, SectionHeader } from "@/components/section";
+import { Container, Section, SectionHeader } from "@/components/section";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
-const projectTypes = ["purchase", "renovation", "new_build", "other"] as const;
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 
 const schema = z.object({
   name: z.string().min(2, "Please enter your name."),
   email: z.string().email("Please enter a valid email."),
-  country: z.string().min(2, "Please enter your country."),
-  projectType: z.enum(projectTypes, { message: "Please select a project type." }),
   message: z.string().min(20, "A short message helps us prepare."),
 });
+
+const gateSchema = z.object({
+  email: z.string().email(),
+});
+
+const PDF_PATH = "/resources/what-international-buyers-miss.pdf";
 
 type FormValues = z.infer<typeof schema>;
 
 export function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
+  const [pdfEmail, setPdfEmail] = useState("");
+  const [pdfError, setPdfError] = useState<string | null>(null);
+  const [pdfOpen, setPdfOpen] = useState(false);
+
+  const downloadName = useMemo(
+    () => "What International Buyers Miss When They’re Not on the Ground in Israel.pdf",
+    [],
+  );
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
       name: "",
       email: "",
-      country: "",
       message: "",
     },
     mode: "onTouched",
@@ -52,16 +62,16 @@ export function ContactPage() {
       />
 
       <Section>
-        <Container>
+        <Container className="py-14 sm:py-18">
           <SectionHeader
             eyebrow="Contact"
-            title="Safe, low-pressure outreach"
-            description="Share the basics. If it’s a fit, we’ll propose a calm next step and a clear scope." 
+            title="Contact"
+            description="Share a few details. We’ll reply with a clear next step."
           />
 
-          <div className="mt-10 grid gap-6 md:grid-cols-2">
-            <Card className="border-border/70">
-              <CardContent className="p-6">
+          <div className="mt-10 grid gap-6 lg:grid-cols-12">
+            <div className="lg:col-span-7">
+              <div className="rounded-2xl border border-border/70 bg-card/60 p-6 sm:p-8">
                 {submitted ? (
                   <div className="space-y-3">
                     <p className="text-sm font-medium">Message received</p>
@@ -115,46 +125,6 @@ export function ContactPage() {
                         )}
                       />
 
-                      <div className="grid gap-4 md:grid-cols-2">
-                        <FormField
-                          control={form.control}
-                          name="country"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Country</FormLabel>
-                              <FormControl>
-                                <Input autoComplete="country-name" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="projectType"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Project type</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="purchase">Purchase</SelectItem>
-                                  <SelectItem value="renovation">Renovation</SelectItem>
-                                  <SelectItem value="new_build">New build</SelectItem>
-                                  <SelectItem value="other">Other</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-
                       <FormField
                         control={form.control}
                         name="message"
@@ -174,60 +144,89 @@ export function ContactPage() {
                       />
 
                       <div className="flex items-center justify-between gap-3">
-                        <p className="text-xs text-muted-foreground">
-                          Privacy-first. We don’t share details.
-                        </p>
                         <Button type="submit">Submit</Button>
                       </div>
                     </form>
                   </Form>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            <div className="space-y-6">
-              <Card className="border-border/70">
-                <CardContent className="p-6">
-                  <p className="text-sm font-medium">Optional WhatsApp</p>
+            <div className="space-y-6 lg:col-span-5">
+              <div className="rounded-2xl border border-border/70 bg-card/60 p-6 sm:p-8">
+                  <p className="text-sm font-medium">Briefing PDF</p>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    If you prefer WhatsApp, we can continue there after the first reply.
+                    A short PDF on what tends to get missed at a distance.
                   </p>
-                  <div className="mt-4">
-                    <Button asChild variant="secondary">
-                      <a href="mailto:hello@example.com?subject=WhatsApp%20request"> 
-                        <MessageCircle className="mr-2 h-4 w-4" />
-                        Request a WhatsApp link
-                      </a>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
 
-              <Card className="border-border/70">
-                <CardContent className="p-6">
-                  <p className="text-sm font-medium">Scheduling</p>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    Calendly-style embed placeholder. Replace with your scheduling tool when ready.
-                  </p>
-                  <div className="mt-4 rounded-lg border border-border/70 bg-muted/20 p-4">
-                    <p className="text-sm text-muted-foreground">Scheduling embed goes here.</p>
+                  <div className="mt-5">
+                    <Dialog open={pdfOpen} onOpenChange={setPdfOpen}>
+                      <DialogTrigger asChild>
+                        <Button className="group">
+                          <Download className="mr-2 h-4 w-4" />
+                          Download PDF
+                        </Button>
+                      </DialogTrigger>
+
+                      <DialogContent className="sm:max-w-lg">
+                        <DialogHeader>
+                          <DialogTitle>Before you download</DialogTitle>
+                          <DialogDescription>
+                            We’ll email you the link if you need it later. No spam.
+                          </DialogDescription>
+                        </DialogHeader>
+
+                        <form
+                          className="space-y-4"
+                          onSubmit={(e) => {
+                            e.preventDefault();
+                            const result = gateSchema.safeParse({
+                              email: pdfEmail,
+                            });
+                            if (!result.success) {
+                              setPdfError("Please enter a valid email.");
+                              return;
+                            }
+
+                            setPdfError(null);
+
+                            const a = document.createElement("a");
+                            a.href = PDF_PATH;
+                            a.download = downloadName;
+                            document.body.appendChild(a);
+                            a.click();
+                            a.remove();
+
+                            setPdfOpen(false);
+                          }}
+                        >
+                          <div className="space-y-2">
+                            <Label htmlFor="pdf-email">Email</Label>
+                            <Input
+                              id="pdf-email"
+                              type="email"
+                              value={pdfEmail}
+                              onChange={(e) => setPdfEmail(e.target.value)}
+                              placeholder="you@example.com"
+                              autoComplete="email"
+                              required
+                            />
+                            {pdfError ? <p className="text-xs text-destructive">{pdfError}</p> : null}
+                          </div>
+
+                          <div className="flex items-center justify-end gap-2">
+                            <Button type="button" variant="ghost" onClick={() => setPdfOpen(false)}>
+                              Cancel
+                            </Button>
+                            <Button type="submit">Download</Button>
+                          </div>
+                        </form>
+                      </DialogContent>
+                    </Dialog>
                   </div>
-                </CardContent>
-              </Card>
+              </div>
             </div>
           </div>
-        </Container>
-      </Section>
-
-      <Divider />
-
-      <Section>
-        <Container>
-          <SectionHeader
-            eyebrow="Integration"
-            title="Ready for API integration"
-            description="The form is wired for validation and state. Hook it to an endpoint when you’re ready." 
-          />
         </Container>
       </Section>
     </>

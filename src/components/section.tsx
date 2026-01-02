@@ -6,7 +6,7 @@ export function Container({ children, className }: PropsWithChildren<{ className
 }
 
 export function Section({ children, className }: PropsWithChildren<{ className?: string }>) {
-  return <section className={cn("py-14 md:py-20", className)}>{children}</section>;
+  return <section className={cn("relative py-14 sm:py-18 lg:py-24", className)}>{children}</section>;
 }
 
 export function SectionHeader({
@@ -19,15 +19,17 @@ export function SectionHeader({
   description?: ReactNode;
 }) {
   return (
-    <div className="max-w-3xl">
+    <div className="max-w-2xl">
       {eyebrow ? (
-        <p className="text-sm font-medium tracking-wide text-muted-foreground">{eyebrow}</p>
+        <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+          {eyebrow}
+        </p>
       ) : null}
-      <h2 className="mt-2 text-2xl font-semibold leading-tight text-foreground md:text-3xl">
+      <h2 className="mt-3 text-3xl font-semibold leading-tight text-foreground sm:text-4xl">
         {title}
       </h2>
       {description ? (
-        <p className="mt-4 text-base leading-relaxed text-muted-foreground md:text-lg">
+        <p className="mt-4 text-base leading-relaxed text-muted-foreground sm:text-lg">
           {description}
         </p>
       ) : null}
@@ -37,8 +39,8 @@ export function SectionHeader({
 
 export function Divider() {
   return (
-    <div className="py-2">
-      <div className="h-px w-full bg-gradient-to-r from-transparent via-border to-transparent" />
+    <div className="py-3">
+      <div className="h-px w-full bg-gradient-to-r from-transparent via-border/80 to-transparent" />
     </div>
   );
 }

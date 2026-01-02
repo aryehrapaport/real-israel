@@ -1,0 +1,53 @@
+<svg width="1200" height="1500" viewBox="0 0 1200 1500" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F3EFE8"/>
+      <stop offset="0.55" stop-color="#E9E2D8"/>
+      <stop offset="1" stop-color="#D9D2C8"/>
+    </linearGradient>
+    <linearGradient id="stone" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2B2A28" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#2B2A28" stop-opacity="0.04"/>
+    </linearGradient>
+    <linearGradient id="shadow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#1F1E1C" stop-opacity="0.18"/>
+      <stop offset="0.6" stop-color="#1F1E1C" stop-opacity="0.05"/>
+      <stop offset="1" stop-color="#1F1E1C" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="grain" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .08 0"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="1500" fill="url(#bg)"/>
+
+  <!-- Architectural planes (abstract, no stock people) -->
+  <path d="M-30 210 L870 40 L1220 210 L320 380 Z" fill="url(#stone)"/>
+  <path d="M-60 1060 L520 900 L1260 1100 L680 1260 Z" fill="url(#stone)"/>
+
+  <path d="M120 220 L520 140 L820 270 L420 350 Z" fill="#FFFFFF" fill-opacity="0.34"/>
+  <path d="M160 410 L620 320 L920 460 L460 550 Z" fill="#FFFFFF" fill-opacity="0.20"/>
+
+  <!-- Vertical rhythm (like facade fins) -->
+  <g opacity="0.42">
+    <rect x="160" y="560" width="8" height="720" fill="#1F1E1C" fill-opacity="0.10"/>
+    <rect x="220" y="520" width="10" height="820" fill="#1F1E1C" fill-opacity="0.08"/>
+    <rect x="290" y="500" width="6" height="860" fill="#1F1E1C" fill-opacity="0.10"/>
+    <rect x="350" y="540" width="8" height="790" fill="#1F1E1C" fill-opacity="0.08"/>
+    <rect x="410" y="520" width="10" height="820" fill="#1F1E1C" fill-opacity="0.07"/>
+    <rect x="480" y="560" width="6" height="740" fill="#1F1E1C" fill-opacity="0.10"/>
+    <rect x="540" y="540" width="8" height="780" fill="#1F1E1C" fill-opacity="0.08"/>
+    <rect x="610" y="520" width="10" height="820" fill="#1F1E1C" fill-opacity="0.07"/>
+    <rect x="680" y="560" width="6" height="740" fill="#1F1E1C" fill-opacity="0.10"/>
+    <rect x="740" y="540" width="8" height="780" fill="#1F1E1C" fill-opacity="0.08"/>
+    <rect x="810" y="520" width="10" height="820" fill="#1F1E1C" fill-opacity="0.07"/>
+    <rect x="880" y="560" width="6" height="740" fill="#1F1E1C" fill-opacity="0.10"/>
+  </g>
+
+  <!-- Soft shadow edge -->
+  <rect x="0" y="0" width="1200" height="1500" fill="url(#shadow)" opacity="0.55"/>
+
+  <!-- Subtle grain -->
+  <rect width="1200" height="1500" filter="url(#grain)" opacity="0.55"/>
+</svg>

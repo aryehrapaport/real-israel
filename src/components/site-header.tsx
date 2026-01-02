@@ -35,9 +35,7 @@ export function SiteHeader() {
         { to: "/about", label: "About" },
         { to: "/why-presence", label: "Why Presence" },
         { to: "/services", label: "Services" },
-        { to: "/scope", label: "Scope" },
-        { to: "/pricing", label: "Pricing" },
-        { to: "/resources", label: "Resources" },
+        { to: "/contact", label: "Contact" },
       ] as const,
     [],
   );
@@ -105,14 +103,10 @@ export function SiteHeader() {
             {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
 
-          <Button asChild className="hidden md:inline-flex">
+          <Button asChild variant="premium" className="hidden md:inline-flex">
             <Link to="/contact" state={{ from: location.pathname }}>
               Request a Consultation
             </Link>
-          </Button>
-
-          <Button asChild variant="outline" className="md:hidden">
-            <Link to="/contact">Contact</Link>
           </Button>
         </div>
       </div>

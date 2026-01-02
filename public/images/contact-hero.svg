@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1200" viewBox="0 0 1600 1200">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#f2f7ff"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="60%" cy="22%" r="85%">
+      <stop offset="0" stop-color="#005EB8" stop-opacity="0.20"/>
+      <stop offset="0.6" stop-color="#005EB8" stop-opacity="0.06"/>
+      <stop offset="1" stop-color="#005EB8" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.92"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0.55"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1600" height="1200" fill="url(#bg)"/>
+  <rect width="1600" height="1200" fill="url(#glow)"/>
+
+  <!-- message bubble motif -->
+  <g transform="translate(290 260)" fill="#005EB8" opacity="0.10">
+    <path d="M0 150 C0 67 67 0 150 0 H760 C843 0 910 67 910 150 V430 C910 513 843 580 760 580 H300 L190 720 V580 H150 C67 580 0 513 0 430 Z"/>
+  </g>
+
+  <g transform="translate(420 360)" opacity="0.16" fill="#0b1b2b">
+    <rect x="0" y="0" width="520" height="14" rx="7"/>
+    <rect x="0" y="36" width="420" height="12" rx="6"/>
+    <rect x="0" y="64" width="470" height="12" rx="6"/>
+    <rect x="0" y="132" width="560" height="14" rx="7"/>
+    <rect x="0" y="168" width="460" height="12" rx="6"/>
+  </g>
+
+  <!-- floating CTA pills -->
+  <g transform="translate(980 300)">
+    <rect x="0" y="0" width="440" height="120" rx="60" fill="url(#glass)" stroke="#005EB8" stroke-opacity="0.12"/>
+    <rect x="46" y="52" width="220" height="16" rx="8" fill="#005EB8" opacity="0.18"/>
+    <rect x="46" y="80" width="320" height="12" rx="6" fill="#0b1b2b" opacity="0.12"/>
+  </g>
+
+  <g transform="translate(980 460)">
+    <rect x="0" y="0" width="440" height="120" rx="60" fill="url(#glass)" stroke="#005EB8" stroke-opacity="0.12"/>
+    <rect x="46" y="52" width="180" height="16" rx="8" fill="#005EB8" opacity="0.14"/>
+    <rect x="46" y="80" width="300" height="12" rx="6" fill="#0b1b2b" opacity="0.12"/>
+  </g>
+
+  <path d="M0 980 C300 920, 520 950, 760 1000 C1000 1050, 1260 1090, 1600 1040 L1600 1200 L0 1200 Z" fill="#005EB8" opacity="0.06"/>
+</svg>

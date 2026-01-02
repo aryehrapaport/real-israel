@@ -12,14 +12,11 @@ export function SiteFooter() {
               <p className="text-sm text-muted-foreground">
                 Discreet, presence-based coordination in Israel for international clients.
               </p>
-              <p className="mt-2 text-xs text-muted-foreground">
-                This is an advisory and coordination service—not a brokerage and not a contractor.
-              </p>
             </div>
 
             <div className="flex items-center justify-start gap-3 md:justify-end">
               <Button asChild variant="secondary">
-                <Link to="/resources">Download the briefing PDF</Link>
+                <Link to="/contact">Download the briefing PDF</Link>
               </Button>
               <Button asChild>
                 <Link to="/contact">Request a Consultation</Link>

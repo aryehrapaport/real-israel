@@ -52,7 +52,7 @@ export function PricingPage() {
             </Card>
           </div>
 
-          <p className="mt-8 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+          <p className="mt-8 text-sm leading-relaxed text-muted-foreground">
             Retainers are not about “hours”. They’re about reliably being available, present, and accountable across a moving timeline.
           </p>
         </Container>

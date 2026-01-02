@@ -39,7 +39,7 @@ export function ScopePage() {
             </div>
           </div>
 
-          <p className="mt-8 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+          <p className="mt-8 text-sm leading-relaxed text-muted-foreground">
             We can be present, document, and coordinate. We do not claim authority we don’t have.
             This is part of how we keep the service high-trust.
           </p>

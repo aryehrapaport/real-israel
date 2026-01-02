@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1200" viewBox="0 0 1600 1200">
+  <defs>
+    <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#f2f7ff"/>
+    </linearGradient>
+    <radialGradient id="aura" cx="70%" cy="30%" r="75%">
+      <stop offset="0" stop-color="#005EB8" stop-opacity="0.18"/>
+      <stop offset="0.55" stop-color="#005EB8" stop-opacity="0.05"/>
+      <stop offset="1" stop-color="#005EB8" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.92"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0.62"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1600" height="1200" fill="url(#paper)"/>
+  <rect width="1600" height="1200" fill="url(#aura)"/>
+
+  <!-- shield silhouette -->
+  <g transform="translate(980 240)" fill="#005EB8" opacity="0.12">
+    <path d="M220 0 C340 60 440 70 520 78 V360 C520 520 410 680 260 760 C110 680 0 520 0 360 V78 C80 70 180 60 220 0 Z"/>
+  </g>
+
+  <!-- contained risk lines -->
+  <g opacity="0.14" stroke="#0a2a4d" stroke-width="2">
+    <path d="M160 260 H860"/>
+    <path d="M160 340 H900"/>
+    <path d="M160 420 H880"/>
+    <path d="M160 500 H820"/>
+    <path d="M160 580 H760"/>
+  </g>
+
+  <!-- glass card -->
+  <g transform="translate(140 820)">
+    <rect x="0" y="0" width="1320" height="300" rx="32" fill="url(#glass)" stroke="#005EB8" stroke-opacity="0.12"/>
+    <rect x="46" y="52" width="280" height="14" rx="7" fill="#0b1b2b" opacity="0.22"/>
+    <rect x="46" y="88" width="620" height="12" rx="6" fill="#0b1b2b" opacity="0.14"/>
+    <rect x="46" y="116" width="560" height="12" rx="6" fill="#0b1b2b" opacity="0.12"/>
+    <rect x="46" y="182" width="760" height="12" rx="6" fill="#0b1b2b" opacity="0.10"/>
+    <rect x="46" y="210" width="690" height="12" rx="6" fill="#0b1b2b" opacity="0.10"/>
+  </g>
+</svg>
