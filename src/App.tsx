@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-route
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { ScrollToTop } from "@/app/scroll-to-top";
+import { SiteBackground } from "@/components/site-background";
 import { AboutPage } from "@/pages/about";
 import { ContactPage } from "@/pages/contact";
 import { HomePage } from "@/pages/home";
@@ -68,12 +69,15 @@ export default function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
-      <div className="min-h-dvh">
-        <SiteHeader />
-        <main className="pt-16">
-          <AnimatedRoutes />
-        </main>
-        <SiteFooter />
+      <div className="relative isolate min-h-dvh bg-background">
+        <SiteBackground />
+        <div className="relative z-10">
+          <SiteHeader />
+          <main className="pt-16">
+            <AnimatedRoutes />
+          </main>
+          <SiteFooter />
+        </div>
       </div>
     </BrowserRouter>
   );

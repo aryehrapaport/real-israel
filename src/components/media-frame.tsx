@@ -7,6 +7,8 @@ export function MediaFrame({
   className,
   children,
 }: PropsWithChildren<{ title?: string; caption?: string; className?: string }>) {
+  const hasTopContent = Boolean(children);
+
   return (
     <div
       className={cn(
@@ -16,12 +18,16 @@ export function MediaFrame({
       )}
     >
       <div className="absolute inset-0 bg-gradient-to-br from-muted/70 via-background/40 to-transparent" />
-      <div className="absolute inset-0 opacity-[0.08] [background-image:linear-gradient(to_right,hsl(var(--foreground))_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--foreground))_1px,transparent_1px)] [background-size:28px_28px]" />
+      <div className="absolute inset-0 opacity-100 [background-image:radial-gradient(800px_circle_at_15%_20%,hsl(var(--primary)/0.16),transparent_55%)]" />
 
       <div className="relative flex min-h-[260px] flex-col justify-end p-6">
         {children ? <div className="mb-auto">{children}</div> : null}
 
-        {title ? <p className="text-sm font-medium text-foreground">{title}</p> : null}
+        {title ? (
+          <p className={cn("text-sm font-medium text-foreground", hasTopContent ? "mt-8" : undefined)}>
+            {title}
+          </p>
+        ) : null}
         {caption ? (
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{caption}</p>
         ) : null}

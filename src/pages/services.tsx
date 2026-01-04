@@ -7,15 +7,15 @@ const services = [
     title: "Property search coordination",
     description:
       "Coordinate viewings, gather details, and verify key questions so you’re not deciding off a listing alone.",
-    prevents: "Prevents wasted trips, missed details, and decision-making from incomplete information.",
+    prevents: "Prevents wasted trips, missed details, and decision making from incomplete information.",
     imageSrc: "https://images.pexels.com/photos/2087392/pexels-photo-2087392.jpeg?auto=compress&cs=tinysrgb&w=1600&fit=crop",
     imageAlt: "Cityscape",
   },
   {
     title: "Purchase coordination",
     description:
-      "Help keep parties aligned across time zones—documents, timelines, and follow-ups—so momentum doesn’t stall.",
-    prevents: "Prevents avoidable delays and last-minute surprises during closing.",
+      "Help keep parties aligned across time zones: documents, timelines, and follow up actions, so momentum doesn’t stall.",
+    prevents: "Prevents avoidable delays and late surprises during closing.",
     imageSrc: "https://images.pexels.com/photos/48148/document-agreement-documents-sign-48148.jpeg?auto=compress&cs=tinysrgb&w=1600&fit=crop",
     imageAlt: "Signing a document",
   },
@@ -30,7 +30,7 @@ const services = [
   {
     title: "Project observation & reporting",
     description:
-      "On-site observation with concise reporting: photos, notes, decisions needed, and what’s next.",
+      "On site observation with concise reporting: photos, notes, decisions needed, and what’s next.",
     prevents: "Prevents drift and ‘we thought it was handled’ moments.",
     imageSrc: "https://images.pexels.com/photos/5584052/pexels-photo-5584052.jpeg?auto=compress&cs=tinysrgb&w=1600&fit=crop",
     imageAlt: "Architect planning and documentation",
@@ -44,9 +44,9 @@ const services = [
     imageAlt: "Delivery van and packages",
   },
   {
-    title: "On-site meetings & verification",
+    title: "On site meetings and verification",
     description:
-      "Attend key meetings when appropriate and confirm what was agreed—so instructions stay consistent and decisions don’t drift.",
+      "Attend key meetings when appropriate and confirm what was agreed, so instructions stay consistent and decisions don’t drift.",
     prevents: "Prevents misalignment between what was discussed and what gets executed.",
     imageSrc: "https://images.pexels.com/photos/416405/pexels-photo-416405.jpeg?auto=compress&cs=tinysrgb&w=1600&fit=crop",
     imageAlt: "Team meeting around plans",
@@ -57,15 +57,15 @@ export function ServicesPage() {
   return (
     <>
       <Seo
-        title="Services — Real Israel"
-        description="Presence-based coordination services in Israel: observation, reporting, vendor qualification, logistics, and purchase support." 
+        title="Real Israel | Services"
+        description="Presence based coordination services in Israel: observation, reporting, vendor qualification, logistics, and purchase support." 
       />
 
       <Section>
         <Container>
           <SectionHeader
             eyebrow="Services"
-            title="Clear scope, no over-promising"
+            title="Clear scope, no inflated claims"
             description="Each engagement is tailored, but the principle stays the same: reduce risk through presence, coordination, and clear documentation." 
           />
 

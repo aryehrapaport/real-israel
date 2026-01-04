@@ -10,7 +10,7 @@ const schema = z.object({
 
 export function NewsletterSignup({
   title = "Occasional notes",
-  description = "A short, low-frequency update when something changes that affects overseas projects.",
+  description = "A short, low frequency update when something changes that affects overseas projects.",
 }: {
   title?: string;
   description?: string;

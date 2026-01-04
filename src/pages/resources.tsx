@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
-import { Download } from "lucide-react";
-import { z } from "zod";
+import { Download, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Seo } from "@/components/seo";
 import { NewsletterSignup } from "@/components/newsletter-signup";
@@ -15,22 +14,34 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-
-const gateSchema = z.object({
-  email: z.string().email(),
-  newsletterOptIn: z.boolean().optional(),
-});
+import { Textarea } from "@/components/ui/textarea";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { contactIntakeSchema, type ContactIntakeValues } from "@/lib/contact-intake";
+import { submitContactIntakeToFormSubmit } from "@/lib/formsubmit";
 
 const PDF_PATH = "/resources/what-international-buyers-miss.pdf";
 
+type FormValues = ContactIntakeValues;
+
 export function ResourcesPage() {
-  const [email, setEmail] = useState("");
-  const [newsletterOptIn, setNewsletterOptIn] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(contactIntakeSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      location: "",
+      timeline: "",
+      message: "",
+    },
+    mode: "onTouched",
+  });
 
   const downloadName = useMemo(
     () => "What International Buyers Miss When They’re Not on the Ground in Israel.pdf",
@@ -40,7 +51,7 @@ export function ResourcesPage() {
   return (
     <>
       <Seo
-        title="Resources — Real Israel"
+        title="Real Israel | Resources"
         description="A short PDF briefing for international buyers and families: what gets missed when no one is on the ground in Israel." 
       />
 
@@ -49,7 +60,7 @@ export function ResourcesPage() {
           <SectionHeader
             eyebrow="Resources"
             title="A short briefing for international buyers"
-            description="One practical PDF—designed to help you spot preventable risk before it becomes costly." 
+            description="One practical PDF designed to help you spot preventable risk before it becomes costly." 
           />
 
           <div className="mt-10 grid gap-6 md:grid-cols-2">
@@ -73,78 +84,164 @@ export function ResourcesPage() {
 
                     <DialogContent className="sm:max-w-lg">
                       <DialogHeader>
-                        <DialogTitle>Before you download</DialogTitle>
+                        <DialogTitle>Request the briefing PDF</DialogTitle>
                         <DialogDescription>
-                          We’ll email you the download link if needed later. No spam.
+                          Leave your details so we can follow up if you want to continue. Then download.
                         </DialogDescription>
                       </DialogHeader>
 
-                      <form
-                        className="space-y-4"
-                        onSubmit={(e) => {
-                          e.preventDefault();
-                          const result = gateSchema.safeParse({ email, newsletterOptIn });
-                          if (!result.success) {
-                            setError("Please enter a valid email.");
-                            return;
-                          }
+                      {error ? (
+                        <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4">
+                          <p className="text-sm text-destructive">{error}</p>
+                        </div>
+                      ) : null}
 
-                          setError(null);
+                      <Form {...form}>
+                        <form
+                          className="space-y-6"
+                          onSubmit={form.handleSubmit(async (values) => {
+                            setError(null);
+                            try {
+                              await submitContactIntakeToFormSubmit(values, {
+                                subject: "Briefing PDF request — Real Israel",
+                                source: "briefing_pdf",
+                              });
 
-                          const a = document.createElement("a");
-                          a.href = PDF_PATH;
-                          a.download = downloadName;
-                          document.body.appendChild(a);
-                          a.click();
-                          a.remove();
+                              const a = document.createElement("a");
+                              a.href = PDF_PATH;
+                              a.download = downloadName;
+                              document.body.appendChild(a);
+                              a.click();
+                              a.remove();
 
-                          setOpen(false);
-                        }}
-                      >
-                        <div className="space-y-2">
-                          <Label htmlFor="gate-email">Email</Label>
-                          <Input
-                            id="gate-email"
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="you@example.com"
-                            autoComplete="email"
-                            required
+                              setOpen(false);
+                              form.reset();
+                            } catch {
+                              setError("We could not submit this request right now. Please try again.");
+                            }
+                          })}
+                        >
+                          <div className="grid gap-4 md:grid-cols-2">
+                            <FormField
+                              control={form.control}
+                              name="name"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Name</FormLabel>
+                                  <FormControl>
+                                    <Input autoComplete="name" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="email"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Email</FormLabel>
+                                  <FormControl>
+                                    <Input type="email" autoComplete="email" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+
+                          <div className="grid gap-4 md:grid-cols-3">
+                            <FormField
+                              control={form.control}
+                              name="phone"
+                              render={({ field }) => (
+                                <FormItem className="md:col-span-1">
+                                  <FormLabel>Phone (optional)</FormLabel>
+                                  <FormControl>
+                                    <Input autoComplete="tel" inputMode="tel" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="location"
+                              render={({ field }) => (
+                                <FormItem className="md:col-span-1">
+                                  <FormLabel>Location (optional)</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="City or neighborhood" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="timeline"
+                              render={({ field }) => (
+                                <FormItem className="md:col-span-1">
+                                  <FormLabel>Timeline (optional)</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="Weeks or months" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+
+                          <FormField
+                            control={form.control}
+                            name="message"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Message</FormLabel>
+                                <FormControl>
+                                  <Textarea
+                                    rows={6}
+                                    placeholder="Stage, location, timeline, and what you want verified."
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
                           />
-                          {error ? <p className="text-xs text-destructive">{error}</p> : null}
-                        </div>
 
-                        <div className="flex items-start gap-2">
-                          <Checkbox
-                            id="newsletter-opt-in"
-                            checked={newsletterOptIn}
-                            onCheckedChange={(v) => setNewsletterOptIn(Boolean(v))}
-                          />
-                          <Label htmlFor="newsletter-opt-in" className="text-sm text-muted-foreground">
-                            Optional: subscribe to occasional, low-frequency updates.
-                          </Label>
-                        </div>
-
-                        <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
-                          <p className="text-xs text-muted-foreground">
-                            Privacy reassurance: we don’t sell emails, and we don’t share client lists.
-                          </p>
-                        </div>
-
-                        <div className="flex items-center justify-end gap-2">
-                          <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
-                            Cancel
-                          </Button>
-                          <Button type="submit">Download</Button>
-                        </div>
-                      </form>
+                          <div className="flex items-center justify-end gap-2">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              onClick={() => setOpen(false)}
+                              disabled={form.formState.isSubmitting}
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              type="submit"
+                              disabled={form.formState.isSubmitting}
+                              aria-busy={form.formState.isSubmitting}
+                            >
+                              {form.formState.isSubmitting ? (
+                                <>
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                  Sending
+                                </>
+                              ) : (
+                                "Download briefing PDF"
+                              )}
+                            </Button>
+                          </div>
+                        </form>
+                      </Form>
                     </DialogContent>
                   </Dialog>
                 </div>
 
                 <p className="mt-4 text-xs text-muted-foreground">
-                  This PDF is a starting point—not legal or engineering advice.
+                  This PDF is a starting point, not legal or engineering advice.
                 </p>
               </CardContent>
             </Card>
@@ -174,7 +271,7 @@ export function ResourcesPage() {
           <SectionHeader
             eyebrow="Quality"
             title="Lead magnet, kept calm"
-            description="The goal is to help qualified clients make better decisions—not to flood your inbox." 
+            description="The goal is to help qualified clients make better decisions, not to flood your inbox." 
           />
         </Container>
       </Section>

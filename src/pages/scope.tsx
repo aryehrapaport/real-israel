@@ -5,8 +5,8 @@ export function ScopePage() {
   return (
     <>
       <Seo
-        title="Scope — Real Israel"
-        description="Clear expectations: what this presence-based coordination service is—and what it is not." 
+        title="Real Israel | Scope"
+        description="Clear expectations: what this presence based coordination service is, and what it is not." 
       />
 
       <Section>
@@ -21,10 +21,10 @@ export function ScopePage() {
             <div className="rounded-xl border border-border/70 bg-card p-6">
               <p className="text-sm font-semibold">What we are</p>
               <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
-                <li>Local presence for observation, follow-through, and verification.</li>
+                <li>Local presence for observation, follow through, and verification.</li>
                 <li>Client-aligned coordination across vendors and timelines.</li>
                 <li>Structured reporting: what changed, what it means, what’s next.</li>
-                <li>A calm point of accountability when you’re not onsite.</li>
+                <li>A calm point of accountability when you’re not on site.</li>
               </ul>
             </div>
 
@@ -41,7 +41,7 @@ export function ScopePage() {
 
           <p className="mt-8 text-sm leading-relaxed text-muted-foreground">
             We can be present, document, and coordinate. We do not claim authority we don’t have.
-            This is part of how we keep the service high-trust.
+            This is part of how we keep the service high trust.
           </p>
         </Container>
       </Section>

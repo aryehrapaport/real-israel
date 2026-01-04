@@ -9,25 +9,25 @@ export function AboutPage() {
   return (
     <>
       <Seo
-        title="About — Real Israel"
-        description="A presence-based coordination service in Israel built for international clients who value discretion, neutrality, and clear reporting." 
+        title="Real Israel | About"
+        description="A presence based coordination service in Israel built for international clients who value discretion, neutrality, and clear reporting." 
       />
 
       <section className="relative overflow-hidden">
         <div className="absolute inset-x-0 top-0 h-56 bg-gradient-to-b from-muted/45 to-transparent" />
         <Container className="py-14 sm:py-18 lg:py-24">
           <div className="grid items-start gap-10 lg:grid-cols-12">
-            <div className="lg:col-span-7">
+            <div className="order-2 lg:order-1 lg:col-span-7">
               <p className="text-sm font-medium tracking-wide text-muted-foreground">About</p>
               <h1 className="mt-4 text-4xl font-semibold leading-[1.06] tracking-tight sm:text-5xl lg:text-6xl">
-                Presence-based coordination for international clients
+                Presence led coordination for international clients
               </h1>
               <p className="mt-6 text-base leading-relaxed text-muted-foreground sm:text-lg">
                 We support overseas buyers, families, and investors by being physically present when
-                you can’t be—so decisions stay grounded in reality.
+                you cannot be there, so decisions stay grounded in reality.
               </p>
               <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
-                Our role is simple: represent your interests on the ground—without competing agendas.
+                Our role is simple: represent your interests on the ground, without competing agendas.
                 We coordinate, observe, document, and follow through.
               </p>
 
@@ -41,7 +41,7 @@ export function AboutPage() {
               </div>
             </div>
 
-            <div className="lg:col-span-5">
+            <div className="order-1 lg:order-2 lg:col-span-5">
               <HeroVisual
                 src="https://images.pexels.com/photos/1659291/pexels-photo-1659291.jpeg?auto=compress&cs=tinysrgb&w=1600&fit=crop"
                 alt="Stone street in Jerusalem"
@@ -64,7 +64,7 @@ export function AboutPage() {
               Reduce avoidable risk through presence
             </h2>
             <p className="mt-4 text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Distance creates gaps. Our work is to close them—through direct observation, structured
+              Distance creates gaps. Our work is to close them through direct observation, structured
               communication, and consistent accountability.
             </p>
           </div>
@@ -84,11 +84,11 @@ export function AboutPage() {
                 {
                   icon: Target,
                   title: "Clarity",
-                  body: "Reality on the ground—translated into decisions you can make remotely.",
+                  body: "Reality on the ground, translated into decisions you can make remotely.",
                 },
                 {
                   icon: Hand,
-                  title: "Follow-through",
+                  title: "Follow through",
                   body: "Commitments become actions, tracked to completion.",
                 },
                 {

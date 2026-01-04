@@ -10,13 +10,13 @@ export function SiteFooter() {
           <div className="grid gap-6 md:grid-cols-2 md:items-center">
             <div>
               <p className="text-sm text-muted-foreground">
-                Discreet, presence-based coordination in Israel for international clients.
+                  Discreet, presence based coordination in Israel for international clients.
               </p>
             </div>
 
             <div className="flex items-center justify-start gap-3 md:justify-end">
               <Button asChild variant="secondary">
-                <Link to="/contact">Download the briefing PDF</Link>
+                <Link to="/contact?briefing=1">Download the briefing PDF</Link>
               </Button>
               <Button asChild>
                 <Link to="/contact">Request a Consultation</Link>

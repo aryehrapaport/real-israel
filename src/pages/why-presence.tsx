@@ -7,7 +7,7 @@ export function WhyPresencePage() {
   return (
     <>
       <Seo
-        title="Why Presence Matters — Real Israel"
+        title="Real Israel | Why Presence Matters"
         description="Presence prevents drift: miscommunication, delays, and avoidable cost when projects are managed remotely." 
       />
 
@@ -15,7 +15,7 @@ export function WhyPresencePage() {
         <div className="absolute inset-x-0 top-0 h-56 bg-gradient-to-b from-muted/45 to-transparent" />
         <Container className="py-14 sm:py-18 lg:py-24">
           <div className="grid items-start gap-10 lg:grid-cols-12">
-            <div className="lg:col-span-7">
+            <div className="order-2 lg:order-1 lg:col-span-7">
               <p className="text-sm font-medium tracking-wide text-muted-foreground">Why presence matters</p>
               <h1 className="mt-4 text-4xl font-semibold leading-[1.06] tracking-tight sm:text-5xl lg:text-6xl">
                 Presence sells the idea, not the tasks
@@ -25,7 +25,7 @@ export function WhyPresencePage() {
                 clarity, accountability, and earlier detection.
               </p>
             </div>
-            <div className="lg:col-span-5">
+            <div className="order-1 lg:order-2 lg:col-span-5">
               <HeroVisual
                 src="https://images.pexels.com/photos/2138126/pexels-photo-2138126.jpeg?auto=compress&cs=tinysrgb&w=1600&fit=crop"
                 alt="Construction site with cranes"
@@ -58,14 +58,14 @@ export function WhyPresencePage() {
               {
                 n: "02",
                 title: "Delays",
-                body: "Small blockers linger between messages and time zones. Presence creates forward motion: decisions are clarified earlier, and follow-ups happen before delays become expensive.",
+                body: "Small blockers linger between messages and time zones. Presence creates forward motion: decisions are clarified earlier, and follow up actions happen before delays become expensive.",
                 imageSrc: "https://images.pexels.com/photos/224924/pexels-photo-224924.jpeg?auto=compress&cs=tinysrgb&w=1600&fit=crop",
                 imageAlt: "Construction cranes and progress",
               },
               {
                 n: "03",
                 title: "Compounding cost",
-                body: "Prevention is often cheaper than correction—even when everything looks “fine.” Presence reduces the likelihood and impact of preventable errors by catching them while they’re still small.",
+                body: "Prevention is often cheaper than correction, even when everything looks “fine.” Presence reduces the likelihood and impact of preventable errors by catching them while they’re still small.",
                 imageSrc: "https://images.pexels.com/photos/534220/pexels-photo-534220.jpeg?auto=compress&cs=tinysrgb&w=1600&fit=crop",
                 imageAlt: "Construction equipment on site",
               },
@@ -109,8 +109,8 @@ export function WhyPresencePage() {
         <Container>
           <SectionHeader
             eyebrow="Comparison"
-            title="With on-the-ground presence vs without it"
-            description="The service is designed to reduce uncertainty—not to replace the professionals doing the work." 
+            title="With local presence vs without it"
+            description="The service is designed to reduce uncertainty, not to replace the professionals doing the work." 
           />
           <div className="mt-12">
             <ComparisonBlock />

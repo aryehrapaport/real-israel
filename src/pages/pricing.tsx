@@ -6,8 +6,8 @@ export function PricingPage() {
   return (
     <>
       <Seo
-        title="Pricing — Real Israel"
-        description="Retainer-based engagement for presence and coordination in Israel. Designed for ongoing oversight and clear reporting." 
+        title="Real Israel | Pricing"
+        description="Retainer based engagement for presence and coordination in Israel. Designed for ongoing oversight and clear reporting." 
       />
 
       <Section>
@@ -33,9 +33,9 @@ export function PricingPage() {
                     </p>
                   </div>
                   <div className="rounded-lg border border-border/70 bg-muted/20 p-4">
-                    <p className="text-sm font-medium">Right-sized scope</p>
+                    <p className="text-sm font-medium">Appropriate scope</p>
                     <p className="mt-2 text-sm text-muted-foreground">
-                      Light-touch oversight looks different than an active renovation.
+                      Light touch oversight looks different than an active renovation.
                     </p>
                   </div>
                 </div>
@@ -44,9 +44,9 @@ export function PricingPage() {
 
             <Card className="border-border/70">
               <CardContent className="p-6">
-                <p className="text-sm font-medium">Add-ons</p>
+                <p className="text-sm font-medium">Add ons</p>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  One-off site visits, special reporting, or time-intensive coordination can be scoped as add-ons.
+                  One time site visits, special reporting, or time intensive coordination can be scoped as add ons.
                 </p>
               </CardContent>
             </Card>
