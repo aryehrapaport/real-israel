@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { ScrollToTop } from "@/app/scroll-to-top";
 import { SiteBackground } from "@/components/site-background";
 import { AboutPage } from "@/pages/about";
+import { AdminPage } from "@/pages/admin";
 import { ContactPage } from "@/pages/contact";
 import { HomePage } from "@/pages/home";
 import { ServicesPage } from "@/pages/services";
@@ -57,6 +58,14 @@ function AnimatedRoutes() {
           element={
             <PageTransition>
               <ContactPage />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <PageTransition>
+              <AdminPage />
             </PageTransition>
           }
         />

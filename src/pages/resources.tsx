@@ -20,7 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { contactIntakeSchema, type ContactIntakeValues } from "@/lib/contact-intake";
-import { submitContactIntakeToFormSubmit } from "@/lib/formsubmit";
+import { submitContactIntake } from "@/lib/formsubmit";
 
 const PDF_PATH = "/resources/what-international-buyers-miss.pdf";
 
@@ -102,7 +102,7 @@ export function ResourcesPage() {
                           onSubmit={form.handleSubmit(async (values) => {
                             setError(null);
                             try {
-                              await submitContactIntakeToFormSubmit(values, {
+                              await submitContactIntake(values, {
                                 subject: "Briefing PDF request — Real Israel",
                                 source: "briefing_pdf",
                               });

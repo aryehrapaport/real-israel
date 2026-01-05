@@ -1,15 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { Menu, Moon, Sun } from "lucide-react";
+import { Menu, Moon, Sun, X } from "lucide-react";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 type Theme = "light" | "dark";
 
@@ -29,6 +30,46 @@ export function SiteHeader() {
     }
   });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const mobileListVariants = useMemo(
+    () => ({
+      open: {
+        transition: {
+          staggerChildren: 0.045,
+          delayChildren: 0.06,
+        },
+      },
+      closed: {
+        transition: {
+          staggerChildren: 0.03,
+          staggerDirection: -1,
+        },
+      },
+    }),
+    [],
+  );
+
+  const mobileItemVariants = useMemo(
+    () => ({
+      open: {
+        opacity: 1,
+        x: 0,
+        transition: {
+          duration: 0.22,
+          ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
+        },
+      },
+      closed: {
+        opacity: 0,
+        x: 14,
+        transition: {
+          duration: 0.12,
+          ease: [0.4, 0, 1, 1] as [number, number, number, number],
+        },
+      },
+    }),
+    [],
+  );
 
   useEffect(() => {
     const root = document.documentElement;
@@ -92,46 +133,67 @@ export function SiteHeader() {
           </Button>
 
           <div className="md:hidden">
-            <Dialog open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-              <DialogTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label="Open menu">
-                  <Menu className="h-4 w-4" />
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+                >
+                  {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
                 </Button>
-              </DialogTrigger>
+              </SheetTrigger>
 
-              <DialogContent
+              <SheetContent
+                side="right"
                 className={cn(
-                  "left-auto top-0 right-0 h-dvh w-[88vw] max-w-sm translate-x-0 translate-y-0",
-                  "rounded-none border-l border-border/60 sm:rounded-none",
                   "p-6",
-                  "data-[state=open]:slide-in-from-right data-[state=closed]:slide-out-to-right",
+                  "data-[state=open]:duration-300 data-[state=closed]:duration-200",
                 )}
               >
-                <DialogHeader className="text-left">
-                  <DialogTitle className="text-base">Menu</DialogTitle>
-                </DialogHeader>
+                <SheetHeader>
+                  <SheetTitle>Menu</SheetTitle>
+                </SheetHeader>
 
-                <nav className="mt-2 grid gap-1" aria-label="Mobile primary">
+                <motion.nav
+                  className="mt-3 grid gap-1"
+                  aria-label="Mobile primary"
+                  initial="closed"
+                  animate="open"
+                  variants={mobileListVariants}
+                >
                   {nav.map((item) => (
-                    <NavLink
-                      key={item.to}
-                      to={item.to}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className={({ isActive }) =>
-                        cn(
-                          "rounded-xl border border-transparent px-3 py-3 text-sm",
-                          "text-muted-foreground transition-colors hover:text-foreground",
-                          "hover:border-border/70 hover:bg-muted/20",
-                          isActive ? "border-border/70 bg-muted/20 text-foreground" : undefined,
-                        )
-                      }
-                    >
-                      {item.label}
-                    </NavLink>
+                    <motion.div key={item.to} variants={mobileItemVariants}>
+                      <NavLink
+                        to={item.to}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={({ isActive }) =>
+                          cn(
+                            "block rounded-xl border border-transparent px-3 py-3 text-sm",
+                            "text-muted-foreground transition-colors hover:text-foreground",
+                            "hover:border-border/70 hover:bg-muted/20",
+                            isActive
+                              ? "border-border/70 bg-muted/20 text-foreground"
+                              : undefined,
+                          )
+                        }
+                      >
+                        {item.label}
+                      </NavLink>
+                    </motion.div>
                   ))}
-                </nav>
+                </motion.nav>
 
-                <div className="mt-6 grid gap-3">
+                <motion.div
+                  className="mt-6 grid gap-3"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.28,
+                    ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
+                    delay: 0.08,
+                  }}
+                >
                   <Button
                     asChild
                     variant="premium"
@@ -146,9 +208,9 @@ export function SiteHeader() {
                   <p className="text-xs leading-relaxed text-muted-foreground">
                     Discreet, presence based coordination for international clients.
                   </p>
-                </div>
-              </DialogContent>
-            </Dialog>
+                </motion.div>
+              </SheetContent>
+            </Sheet>
           </div>
 
           <Button asChild variant="premium" className="hidden md:inline-flex">

@@ -18,7 +18,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { contactIntakeSchema, type ContactIntakeValues } from "@/lib/contact-intake";
-import { submitContactIntakeToFormSubmit } from "@/lib/formsubmit";
+import { submitContactIntake } from "@/lib/formsubmit";
 
 const PDF_PATH = "/resources/what-international-buyers-miss.pdf";
 
@@ -127,7 +127,7 @@ export function ContactPage() {
                       onSubmit={form.handleSubmit(async (values) => {
                         setSubmitError(null);
                         try {
-                          await submitContactIntakeToFormSubmit(values, {
+                          await submitContactIntake(values, {
                             subject: "Contact form — Real Israel",
                             source: "contact_form",
                           });
@@ -331,7 +331,7 @@ export function ContactPage() {
                             onSubmit={pdfForm.handleSubmit(async (values) => {
                               setPdfSubmitError(null);
                               try {
-                                await submitContactIntakeToFormSubmit(values, {
+                                await submitContactIntake(values, {
                                   subject: "Briefing PDF request — Real Israel",
                                   source: "briefing_pdf",
                                 });
