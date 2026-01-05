@@ -37,7 +37,7 @@ export function AdminLoginPage() {
           <SectionHeader
             eyebrow="Admin"
             title="Sign in"
-            description="Enter your admin token to access the submissions inbox."
+            description="Enter the admin password to access the submissions inbox."
           />
 
           <div className="mt-10 grid gap-6 lg:grid-cols-12">
@@ -51,18 +51,18 @@ export function AdminLoginPage() {
                   ) : null}
 
                   <div className="space-y-2">
-                    <p className="text-sm font-medium">Admin token</p>
+                    <p className="text-sm font-medium">Password</p>
                     <Input
                       value={token}
                       onChange={(e) => setToken(e.target.value)}
                       type="password"
-                      placeholder="Paste ADMIN_TOKEN"
-                      autoComplete="off"
+                      placeholder="Enter admin password"
+                      autoComplete="current-password"
                       spellCheck={false}
                       className="h-10"
                     />
                     <p className="text-xs leading-relaxed text-muted-foreground">
-                      Stored in this browser only. Keep it private.
+                      Stored in this browser only.
                     </p>
                   </div>
 
@@ -96,10 +96,10 @@ export function AdminLoginPage() {
 
             <div className="lg:col-span-6">
               <div className="rounded-2xl border border-border/70 bg-card/40 p-6 sm:p-8">
-                <p className="text-sm font-medium">Tip</p>
+                <p className="text-sm font-medium">Admin access</p>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  If you don’t have the token, create or update it in Cloudflare Pages:
-                  Settings → Environment variables → Secrets → <span className="font-medium text-foreground">ADMIN_TOKEN</span>.
+                  If you don’t have the admin password, update it in Cloudflare Pages:
+                  Settings → Environment variables → Secrets.
                 </p>
               </div>
             </div>
