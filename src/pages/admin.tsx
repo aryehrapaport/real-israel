@@ -1,15 +1,17 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
   Download,
   FileSpreadsheet,
+  LogOut,
   Mail,
   Search,
   Trash2,
 } from "lucide-react";
 import * as XLSX from "xlsx";
+import { useNavigate } from "react-router-dom";
 import { Seo } from "@/components/seo";
 import { Container, Section, SectionHeader } from "@/components/section";
 import { Button } from "@/components/ui/button";
@@ -81,6 +83,7 @@ function downloadXlsx(filename: string, rows: Record<string, unknown>[]) {
 }
 
 export function AdminPage() {
+  const navigate = useNavigate();
   const [token, setToken] = useState(() => localStorage.getItem("admin_token") ?? "");
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<Submission[]>([]);
@@ -91,13 +94,20 @@ export function AdminPage() {
 
   const [page, setPage] = useState(1);
   const pageSize = 25;
-  const [sourceFilter, setSourceFilter] = useState<"all" | "contact_form" | "briefing_pdf">(
-    "all",
-  );
   const [statusFilter, setStatusFilter] = useState<"all" | "unread" | "read">("all");
   const [query, setQuery] = useState("");
 
-  const canLoad = useMemo(() => token.trim().length > 10, [token]);
+  const authed = useMemo(() => token.trim().length > 10, [token]);
+
+  useEffect(() => {
+    const existing = localStorage.getItem("admin_token") ?? "";
+    if (!existing || existing.trim().length <= 10) {
+      navigate("/admin/login", { replace: true });
+      return;
+    }
+
+    setToken(existing);
+  }, [navigate]);
 
   const selectedIds = useMemo(
     () => Object.entries(selected).filter(([, v]) => v).map(([k]) => k),
@@ -171,7 +181,6 @@ export function AdminPage() {
         limit: String(pageSize),
         offset: String(offset),
       });
-      if (sourceFilter !== "all") qs.set("source", sourceFilter);
       if (statusFilter !== "all") qs.set("status", statusFilter);
 
       const response = await fetch(`/api/admin/submissions?${qs.toString()}`, {
@@ -185,9 +194,13 @@ export function AdminPage() {
         | { ok?: boolean; items?: Submission[]; error?: string; total?: number }
         | null;
 
-      if (!response.ok || !data?.ok) {
-        throw new Error(data?.error || "Could not load submissions.");
+      if (response.status === 401) {
+        localStorage.removeItem("admin_token");
+        navigate("/admin/login?reason=unauthorized", { replace: true });
+        return;
       }
+
+      if (!response.ok || !data?.ok) throw new Error(data?.error || "Could not load submissions.");
 
       setItems(data.items ?? []);
       setTotal(typeof data.total === "number" ? data.total : 0);
@@ -206,13 +219,13 @@ export function AdminPage() {
 
   function signOut() {
     localStorage.removeItem("admin_token");
-    setToken("");
     setItems([]);
     setTotal(0);
     setSelected({});
     setError(null);
     setPage(1);
     setQuery("");
+    navigate("/admin/login", { replace: true });
   }
 
   function toggleOne(id: string, next: boolean) {
@@ -244,9 +257,13 @@ export function AdminPage() {
       | { ok?: boolean; error?: string }
       | null;
 
-    if (!response.ok || !data?.ok) {
-      throw new Error(data?.error || "Request failed.");
+    if (response.status === 401) {
+      localStorage.removeItem("admin_token");
+      navigate("/admin/login?reason=unauthorized", { replace: true });
+      return;
     }
+
+    if (!response.ok || !data?.ok) throw new Error(data?.error || "Request failed.");
   }
 
   async function markRead(ids: string[]) {
@@ -295,59 +312,50 @@ export function AdminPage() {
 
       <Section>
         <Container className="py-14 sm:py-18">
-          <SectionHeader
-            eyebrow="Admin"
-            title="Submissions"
-            description="Contact and briefing PDF requests." 
-          />
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <SectionHeader
+              eyebrow="Admin"
+              title="Submissions"
+              description="Contact and briefing PDF requests."
+            />
 
-          <div className="mt-10 grid gap-6 lg:grid-cols-[420px_1fr]">
-            <Card className="border-border/70 bg-card/60">
-              <CardContent className="space-y-4 p-6 sm:p-8">
-                <div className="space-y-2">
-                  <p className="text-sm font-medium">Admin token</p>
-                  <Input
-                    value={token}
-                    onChange={(e) => setToken(e.target.value)}
-                    placeholder="Paste ADMIN_TOKEN"
-                    autoComplete="off"
-                    spellCheck={false}
-                  />
-                  <p className="text-xs leading-relaxed text-muted-foreground">
-                    Stored in this browser only. Anyone with the token can view submissions.
-                  </p>
-                </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="secondary"
+                className="h-9 px-3 text-xs"
+                onClick={() => load(1)}
+                disabled={!authed || loading}
+                aria-busy={loading}
+              >
+                {loading ? "Loading…" : "Refresh"}
+              </Button>
+              <Button
+                variant="secondary"
+                className="h-9 px-3 text-xs"
+                onClick={signOut}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Sign out
+              </Button>
+            </div>
+          </div>
 
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    onClick={() => load(1)}
-                    disabled={!canLoad || loading}
-                    aria-busy={loading}
-                    className="h-9 px-3 text-xs"
-                  >
-                    {loading ? "Loading…" : "Load"}
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    onClick={signOut}
-                    className="h-9 px-3 text-xs"
-                  >
-                    Sign out
-                  </Button>
-                </div>
+          {error ? (
+            <div className="mt-6 rounded-xl border border-destructive/30 bg-destructive/5 p-4">
+              <p className="text-sm text-destructive">{error}</p>
+            </div>
+          ) : null}
 
-                {error ? (
-                  <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4">
-                    <p className="text-sm text-destructive">{error}</p>
-                  </div>
-                ) : null}
-              </CardContent>
-            </Card>
-
+          <div className="mt-8">
             <Card className="border-border/70 bg-card/60">
               <CardContent className="p-6 sm:p-8">
                 {items.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No submissions loaded.</p>
+                  <div className="flex flex-col gap-2">
+                    <p className="text-sm text-muted-foreground">No submissions loaded.</p>
+                    <p className="text-xs text-muted-foreground">
+                      Use “Refresh” to fetch the inbox.
+                    </p>
+                  </div>
                 ) : (
                   <div className="space-y-4">
                     {/* Tools */}
@@ -404,43 +412,6 @@ export function AdminPage() {
                               disabled={loading}
                             >
                               Read
-                            </Button>
-
-                            <Button
-                              type="button"
-                              variant={sourceFilter === "all" ? "default" : "secondary"}
-                              className="h-9 px-3 text-xs"
-                              onClick={() => {
-                                setSourceFilter("all");
-                                load(1);
-                              }}
-                              disabled={loading}
-                            >
-                              All sources
-                            </Button>
-                            <Button
-                              type="button"
-                              variant={sourceFilter === "contact_form" ? "default" : "secondary"}
-                              className="h-9 px-3 text-xs"
-                              onClick={() => {
-                                setSourceFilter("contact_form");
-                                load(1);
-                              }}
-                              disabled={loading}
-                            >
-                              Contact
-                            </Button>
-                            <Button
-                              type="button"
-                              variant={sourceFilter === "briefing_pdf" ? "default" : "secondary"}
-                              className="h-9 px-3 text-xs"
-                              onClick={() => {
-                                setSourceFilter("briefing_pdf");
-                                load(1);
-                              }}
-                              disabled={loading}
-                            >
-                              Briefing
                             </Button>
                           </div>
                         </div>
