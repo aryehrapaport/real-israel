@@ -41,7 +41,9 @@ This project can store form submissions in Cloudflare D1 and expose a simple inb
 - The form is sent to FormSubmit (email notification)
 - The same payload is also sent to `POST /api/intake` (saved in D1)
 
-Email delivery is treated as the required success path. D1 storage is best-effort.
+The client attempts both in parallel. The submission is treated as successful if either email or D1 succeeds (and only fails if both fail).
+
+If email delivery fails, details are logged to the browser console. Common causes are missing `VITE_FORMSUBMIT_EMAIL` in Cloudflare Pages environment variables (requires a rebuild) or FormSubmit inbox/activation/spam filtering.
 
 ### Cloudflare dashboard setup
 

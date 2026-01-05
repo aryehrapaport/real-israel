@@ -11,6 +11,19 @@ type IntakeResult = {
   saved: boolean;
 };
 
+function getPagePath(explicit?: string) {
+  return explicit ?? `${window.location.pathname}${window.location.search}`;
+}
+
+function toErrorMessage(err: unknown) {
+  if (err instanceof Error) return err.message;
+  try {
+    return JSON.stringify(err);
+  } catch {
+    return String(err);
+  }
+}
+
 export async function submitContactIntakeToFormSubmit(
   values: ContactIntakeValues,
   options: SubmitOptions,
@@ -18,28 +31,52 @@ export async function submitContactIntakeToFormSubmit(
   const recipient = import.meta.env.VITE_FORMSUBMIT_EMAIL as string | undefined;
 
   if (!recipient) {
+    console.error("[FormSubmit] Missing VITE_FORMSUBMIT_EMAIL. Email notification will not be sent.");
     throw new Error("Missing VITE_FORMSUBMIT_EMAIL.");
   }
 
-  const response = await fetch(
-    `https://formsubmit.co/ajax/${encodeURIComponent(recipient)}`,
-    {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
+  const pagePath = getPagePath(options.pagePath);
+
+  let response: Response;
+  try {
+    response = await fetch(
+      `https://formsubmit.co/ajax/${encodeURIComponent(recipient)}`,
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...values,
+          _subject: options.subject,
+          _template: "table",
+          _replyto: values.email,
+          source: options.source,
+          page_path: pagePath,
+        }),
       },
-      body: JSON.stringify({
-        ...values,
-        _subject: options.subject,
-        _template: "table",
-        source: options.source,
-      }),
-    },
-  );
+    );
+  } catch (err) {
+    console.error("[FormSubmit] Network error", {
+      message: toErrorMessage(err),
+      source: options.source,
+      subject: options.subject,
+      page_path: pagePath,
+    });
+    throw err;
+  }
 
   if (!response.ok) {
     const text = await response.text().catch(() => "");
+    console.error("[FormSubmit] Request failed", {
+      status: response.status,
+      statusText: response.statusText,
+      body: text?.slice(0, 2000) ?? "",
+      source: options.source,
+      subject: options.subject,
+      page_path: pagePath,
+    });
     throw new Error(text || `FormSubmit failed (${response.status}).`);
   }
 }
@@ -48,8 +85,7 @@ async function submitContactIntakeToD1(
   values: ContactIntakeValues,
   options: SubmitOptions,
 ): Promise<void> {
-  const pagePath =
-    options.pagePath ?? `${window.location.pathname}${window.location.search}`;
+  const pagePath = getPagePath(options.pagePath);
 
   const response = await fetch("/api/intake", {
     method: "POST",
@@ -78,8 +114,9 @@ async function submitContactIntakeToD1(
  * Sends the intake to FormSubmit (email) and also stores it in Cloudflare D1.
  *
  * Behavior:
- * - Email must succeed (otherwise we throw).
- * - D1 is best-effort: we attempt it, but do not block the user if it fails.
+ * - We attempt both in parallel.
+ * - The overall request succeeds if either email OR D1 succeeds.
+ * - We only throw if both fail.
  */
 export async function submitContactIntake(
   values: ContactIntakeValues,
@@ -90,12 +127,37 @@ export async function submitContactIntake(
     submitContactIntakeToD1(values, options),
   ]);
 
-  if (emailResult.status === "rejected") {
-    throw emailResult.reason;
+  const emailed = emailResult.status === "fulfilled";
+  const saved = d1Result.status === "fulfilled";
+
+  if (!emailed) {
+    console.warn("[Intake] Email notification failed", {
+      reason: emailResult.status === "rejected" ? toErrorMessage(emailResult.reason) : "unknown",
+      saved,
+      source: options.source,
+      subject: options.subject,
+    });
+  }
+
+  if (!saved) {
+    console.warn("[Intake] D1 save failed", {
+      reason: d1Result.status === "rejected" ? toErrorMessage(d1Result.reason) : "unknown",
+      emailed,
+      source: options.source,
+      subject: options.subject,
+    });
+  }
+
+  if (!emailed && !saved) {
+    const reason =
+      (emailResult.status === "rejected" ? emailResult.reason : null) ??
+      (d1Result.status === "rejected" ? d1Result.reason : null) ??
+      new Error("Submission failed.");
+    throw reason;
   }
 
   return {
-    emailed: true,
-    saved: d1Result.status === "fulfilled",
+    emailed,
+    saved,
   };
 }

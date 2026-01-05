@@ -116,7 +116,8 @@ export function ResourcesPage() {
 
                               setOpen(false);
                               form.reset();
-                            } catch {
+                            } catch (err) {
+                              console.error("[Resources] Briefing submission failed", err);
                               setError("We could not submit this request right now. Please try again.");
                             }
                           })}

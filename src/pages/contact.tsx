@@ -132,7 +132,8 @@ export function ContactPage() {
                             source: "contact_form",
                           });
                           setSubmitted(true);
-                        } catch {
+                        } catch (err) {
+                          console.error("[Contact] Submission failed", err);
                           setSubmitError("We could not send your message right now. Please try again.");
                         }
                       })}
