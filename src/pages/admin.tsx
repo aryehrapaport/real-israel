@@ -1,5 +1,15 @@
 import { useMemo, useState } from "react";
-import { CheckCircle2, Download, Mail, Trash2 } from "lucide-react";
+import {
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  FileSpreadsheet,
+  Mail,
+  Search,
+  Trash2,
+} from "lucide-react";
+import * as XLSX from "xlsx";
 import { Seo } from "@/components/seo";
 import { Container, Section, SectionHeader } from "@/components/section";
 import { Button } from "@/components/ui/button";
@@ -50,13 +60,42 @@ function downloadCsv(filename: string, rows: Record<string, unknown>[]) {
   URL.revokeObjectURL(url);
 }
 
+function downloadXlsx(filename: string, rows: Record<string, unknown>[]) {
+  if (rows.length === 0) return;
+  const worksheet = XLSX.utils.json_to_sheet(rows);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Submissions");
+
+  const array = XLSX.write(workbook, { bookType: "xlsx", type: "array" }) as ArrayBuffer;
+  const blob = new Blob([array],
+    { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" },
+  );
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
 export function AdminPage() {
   const [token, setToken] = useState(() => localStorage.getItem("admin_token") ?? "");
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<Submission[]>([]);
+  const [total, setTotal] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [actionBusy, setActionBusy] = useState<"mark-read" | "delete" | null>(null);
+
+  const [page, setPage] = useState(1);
+  const pageSize = 25;
+  const [sourceFilter, setSourceFilter] = useState<"all" | "contact_form" | "briefing_pdf">(
+    "all",
+  );
+  const [statusFilter, setStatusFilter] = useState<"all" | "unread" | "read">("all");
+  const [query, setQuery] = useState("");
 
   const canLoad = useMemo(() => token.trim().length > 10, [token]);
 
@@ -70,12 +109,72 @@ export function AdminPage() {
   const headerCheckboxState =
     selectedCount === 0 ? false : selectedCount === allCount ? true : "indeterminate";
 
-  async function load() {
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
+  const canPrev = page > 1;
+  const canNext = page < pageCount;
+
+  const filteredItems = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return items;
+    return items.filter((s) => {
+      const haystack = [
+        s.email,
+        s.name ?? "",
+        s.subject ?? "",
+        s.message ?? "",
+        s.location ?? "",
+        s.timeline ?? "",
+      ]
+        .join("\n")
+        .toLowerCase();
+      return haystack.includes(q);
+    });
+  }, [items, query]);
+
+  const unreadCount = useMemo(
+    () => items.filter((s) => !s.read_at).length,
+    [items],
+  );
+
+  const selectedReadItems = useMemo(() => {
+    if (selectedIds.length === 0) return [] as Submission[];
+    const set = new Set(selectedIds);
+    return items.filter((s) => set.has(s.id) && Boolean(s.read_at));
+  }, [items, selectedIds]);
+
+  const canExportSelectedRead = selectedReadItems.length > 1;
+
+  function buildExportRows(subs: Submission[]) {
+    return subs.map((s) => ({
+      id: s.id,
+      created_at: s.created_at,
+      read_at: s.read_at ?? "",
+      source: s.source,
+      subject: s.subject ?? "",
+      name: s.name ?? "",
+      email: s.email,
+      phone: s.phone ?? "",
+      location: s.location ?? "",
+      timeline: s.timeline ?? "",
+      message: s.message ?? "",
+      page_path: s.page_path ?? "",
+    }));
+  }
+
+  async function load(nextPage = 1) {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await fetch("/api/admin/submissions?limit=200", {
+      const offset = Math.max(0, (nextPage - 1) * pageSize);
+      const qs = new URLSearchParams({
+        limit: String(pageSize),
+        offset: String(offset),
+      });
+      if (sourceFilter !== "all") qs.set("source", sourceFilter);
+      if (statusFilter !== "all") qs.set("status", statusFilter);
+
+      const response = await fetch(`/api/admin/submissions?${qs.toString()}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: "application/json",
@@ -83,7 +182,7 @@ export function AdminPage() {
       });
 
       const data = (await response.json().catch(() => null)) as
-        | { ok?: boolean; items?: Submission[]; error?: string }
+        | { ok?: boolean; items?: Submission[]; error?: string; total?: number }
         | null;
 
       if (!response.ok || !data?.ok) {
@@ -91,10 +190,13 @@ export function AdminPage() {
       }
 
       setItems(data.items ?? []);
+      setTotal(typeof data.total === "number" ? data.total : 0);
       setSelected({});
+      setPage(nextPage);
       localStorage.setItem("admin_token", token);
     } catch (err) {
       setItems([]);
+      setTotal(0);
       setSelected({});
       setError(err instanceof Error ? err.message : "Could not load submissions.");
     } finally {
@@ -106,8 +208,11 @@ export function AdminPage() {
     localStorage.removeItem("admin_token");
     setToken("");
     setItems([]);
+    setTotal(0);
     setSelected({});
     setError(null);
+    setPage(1);
+    setQuery("");
   }
 
   function toggleOne(id: string, next: boolean) {
@@ -171,6 +276,7 @@ export function AdminPage() {
     try {
       await postAdminAction("/api/admin/delete", ids);
       setItems((prev) => prev.filter((s) => !ids.includes(s.id)));
+      setTotal((t) => Math.max(0, t - ids.length));
       setSelected((prev) => {
         const next = { ...prev };
         for (const id of ids) delete next[id];
@@ -182,11 +288,6 @@ export function AdminPage() {
       setActionBusy(null);
     }
   }
-
-  const unreadCount = useMemo(
-    () => items.filter((s) => !s.read_at).length,
-    [items],
-  );
 
   return (
     <>
@@ -218,10 +319,19 @@ export function AdminPage() {
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                  <Button onClick={load} disabled={!canLoad || loading} aria-busy={loading}>
+                  <Button
+                    onClick={() => load(1)}
+                    disabled={!canLoad || loading}
+                    aria-busy={loading}
+                    className="h-9 px-3 text-xs"
+                  >
                     {loading ? "Loading…" : "Load"}
                   </Button>
-                  <Button variant="secondary" onClick={signOut}>
+                  <Button
+                    variant="secondary"
+                    onClick={signOut}
+                    className="h-9 px-3 text-xs"
+                  >
                     Sign out
                   </Button>
                 </div>
@@ -240,70 +350,207 @@ export function AdminPage() {
                   <p className="text-sm text-muted-foreground">No submissions loaded.</p>
                 ) : (
                   <div className="space-y-4">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <p className="text-sm text-muted-foreground">
-                        {items.length} total · {unreadCount} unread
-                      </p>
+                    {/* Tools */}
+                    <div className="rounded-2xl border border-border/70 bg-background/30 p-4">
+                      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                        <p className="text-sm text-muted-foreground">
+                          {total} total · {unreadCount} unread
+                        </p>
 
-                      <div className="flex flex-wrap items-center gap-2">
-                        {selectedCount > 0 ? (
+                        <div className="flex flex-wrap items-center gap-2">
+                          <div className="relative w-full sm:w-[260px]">
+                            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                            <Input
+                              value={query}
+                              onChange={(e) => setQuery(e.target.value)}
+                              placeholder="Search this page"
+                              className="h-9 pl-9"
+                            />
+                          </div>
+
                           <div className="flex flex-wrap items-center gap-2">
-                            <p className="text-xs text-muted-foreground">
-                              {selectedCount} selected
-                            </p>
                             <Button
-                              size="sm"
-                              variant="secondary"
-                              onClick={() => markRead(selectedIds)}
-                              disabled={actionBusy !== null}
-                              aria-busy={actionBusy === "mark-read"}
+                              type="button"
+                              variant={statusFilter === "all" ? "default" : "secondary"}
+                              className="h-9 px-3 text-xs"
+                              onClick={() => {
+                                setStatusFilter("all");
+                                load(1);
+                              }}
+                              disabled={loading}
                             >
-                              <CheckCircle2 className="mr-2 h-4 w-4" />
-                              Mark read
+                              All
                             </Button>
                             <Button
-                              size="sm"
-                              variant="secondary"
-                              onClick={() => deleteItems(selectedIds)}
-                              disabled={actionBusy !== null}
-                              aria-busy={actionBusy === "delete"}
+                              type="button"
+                              variant={statusFilter === "unread" ? "default" : "secondary"}
+                              className="h-9 px-3 text-xs"
+                              onClick={() => {
+                                setStatusFilter("unread");
+                                load(1);
+                              }}
+                              disabled={loading}
                             >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Delete
+                              Unread
+                            </Button>
+                            <Button
+                              type="button"
+                              variant={statusFilter === "read" ? "default" : "secondary"}
+                              className="h-9 px-3 text-xs"
+                              onClick={() => {
+                                setStatusFilter("read");
+                                load(1);
+                              }}
+                              disabled={loading}
+                            >
+                              Read
+                            </Button>
+
+                            <Button
+                              type="button"
+                              variant={sourceFilter === "all" ? "default" : "secondary"}
+                              className="h-9 px-3 text-xs"
+                              onClick={() => {
+                                setSourceFilter("all");
+                                load(1);
+                              }}
+                              disabled={loading}
+                            >
+                              All sources
+                            </Button>
+                            <Button
+                              type="button"
+                              variant={sourceFilter === "contact_form" ? "default" : "secondary"}
+                              className="h-9 px-3 text-xs"
+                              onClick={() => {
+                                setSourceFilter("contact_form");
+                                load(1);
+                              }}
+                              disabled={loading}
+                            >
+                              Contact
+                            </Button>
+                            <Button
+                              type="button"
+                              variant={sourceFilter === "briefing_pdf" ? "default" : "secondary"}
+                              className="h-9 px-3 text-xs"
+                              onClick={() => {
+                                setSourceFilter("briefing_pdf");
+                                load(1);
+                              }}
+                              disabled={loading}
+                            >
+                              Briefing
                             </Button>
                           </div>
-                        ) : null}
+                        </div>
+                      </div>
 
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={() => {
-                            const rows = items.map((s) => ({
-                              id: s.id,
-                              created_at: s.created_at,
-                              read_at: s.read_at ?? "",
-                              source: s.source,
-                              subject: s.subject ?? "",
-                              name: s.name ?? "",
-                              email: s.email,
-                              phone: s.phone ?? "",
-                              location: s.location ?? "",
-                              timeline: s.timeline ?? "",
-                              message: s.message ?? "",
-                              page_path: s.page_path ?? "",
-                            }));
-                            downloadCsv(`submissions-${new Date().toISOString().slice(0, 10)}.csv`, rows);
-                          }}
-                          disabled={items.length === 0}
-                        >
-                          <Download className="mr-2 h-4 w-4" />
-                          Export CSV
-                        </Button>
+                      <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          {selectedCount > 0 ? (
+                            <p className="text-xs text-muted-foreground">{selectedCount} selected</p>
+                          ) : (
+                            <p className="text-xs text-muted-foreground">Select items to apply actions</p>
+                          )}
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            className="h-9 px-3 text-xs"
+                            onClick={() => markRead(selectedIds)}
+                            disabled={selectedCount === 0 || actionBusy !== null}
+                            aria-busy={actionBusy === "mark-read"}
+                          >
+                            <CheckCircle2 className="mr-2 h-4 w-4" />
+                            Mark read
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            className="h-9 px-3 text-xs"
+                            onClick={() => deleteItems(selectedIds)}
+                            disabled={selectedCount === 0 || actionBusy !== null}
+                            aria-busy={actionBusy === "delete"}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                          </Button>
+
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            className="h-9 px-3 text-xs"
+                            onClick={() => {
+                              const rows = buildExportRows(selectedReadItems);
+                              downloadCsv(
+                                `submissions-read-selected-${new Date().toISOString().slice(0, 10)}.csv`,
+                                rows,
+                              );
+                            }}
+                            disabled={!canExportSelectedRead}
+                            title="Select 2+ read submissions to export"
+                          >
+                            <Download className="mr-2 h-4 w-4" />
+                            CSV (read)
+                          </Button>
+
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            className="h-9 px-3 text-xs"
+                            onClick={() => {
+                              const rows = buildExportRows(selectedReadItems);
+                              downloadXlsx(
+                                `submissions-read-selected-${new Date().toISOString().slice(0, 10)}.xlsx`,
+                                rows,
+                              );
+                            }}
+                            disabled={!canExportSelectedRead}
+                            title="Select 2+ read submissions to export"
+                          >
+                            <FileSpreadsheet className="mr-2 h-4 w-4" />
+                            Excel (read)
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="mt-3 flex items-center justify-between">
+                        <div className="text-xs text-muted-foreground">
+                          Page {page} of {pageCount}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="icon"
+                            className="h-9 w-9 rounded-lg"
+                            onClick={() => load(page - 1)}
+                            disabled={!canPrev || loading}
+                            aria-label="Previous page"
+                          >
+                            <ChevronLeft className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="icon"
+                            className="h-9 w-9 rounded-lg"
+                            onClick={() => load(page + 1)}
+                            disabled={!canNext || loading}
+                            aria-label="Next page"
+                          >
+                            <ChevronRight className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="overflow-hidden rounded-2xl border border-border/70">
-                      <div className="grid grid-cols-[40px_120px_1fr_110px_150px] gap-3 border-b border-border/70 bg-background/30 px-4 py-3 text-xs text-muted-foreground">
+                    {/* Desktop list */}
+                    <div className="hidden overflow-hidden rounded-2xl border border-border/70 md:block">
+                      <div className="grid grid-cols-[40px_120px_1fr_110px_156px] gap-3 border-b border-border/70 bg-background/30 px-4 py-3 text-xs text-muted-foreground">
                         <div className="flex items-center justify-center">
                           <Checkbox
                             checked={headerCheckboxState as any}
@@ -312,13 +559,13 @@ export function AdminPage() {
                           />
                         </div>
                         <div>Date</div>
-                        <div>Contact</div>
+                        <div>Submission</div>
                         <div>Status</div>
                         <div className="text-right">Actions</div>
                       </div>
 
                       <div className="divide-y divide-border/70">
-                        {items.map((s) => {
+                        {filteredItems.map((s) => {
                           const checked = Boolean(selected[s.id]);
                           const isUnread = !s.read_at;
                           const preview = s.message
@@ -411,39 +658,149 @@ export function AdminPage() {
                               </div>
 
                               <div className="flex items-start justify-end gap-2">
-                                <Button asChild size="sm" variant="secondary">
+                                <Button asChild size="icon" variant="secondary" className="h-9 w-9 rounded-lg" aria-label="Email">
                                   <a href={mailto}>
-                                    <Mail className="mr-2 h-4 w-4" />
-                                    Email
+                                    <Mail className="h-4 w-4" />
                                   </a>
                                 </Button>
 
                                 {isUnread ? (
                                   <Button
-                                    size="sm"
+                                    size="icon"
                                     variant="secondary"
+                                    className="h-9 w-9 rounded-lg"
                                     onClick={() => markRead([s.id])}
                                     disabled={actionBusy !== null}
+                                    aria-label="Mark read"
                                   >
-                                    <CheckCircle2 className="mr-2 h-4 w-4" />
-                                    Read
+                                    <CheckCircle2 className="h-4 w-4" />
                                   </Button>
                                 ) : null}
 
                                 <Button
-                                  size="sm"
+                                  size="icon"
                                   variant="secondary"
+                                  className="h-9 w-9 rounded-lg"
                                   onClick={() => deleteItems([s.id])}
                                   disabled={actionBusy !== null}
+                                  aria-label="Delete"
                                 >
-                                  <Trash2 className="mr-2 h-4 w-4" />
-                                  Delete
+                                  <Trash2 className="h-4 w-4" />
                                 </Button>
                               </div>
                             </div>
                           );
                         })}
                       </div>
+                    </div>
+
+                    {/* Mobile list */}
+                    <div className="grid gap-3 md:hidden">
+                      {filteredItems.map((s) => {
+                        const checked = Boolean(selected[s.id]);
+                        const isUnread = !s.read_at;
+                        const emailSubject = encodeURIComponent(
+                          s.subject || `Re: ${s.source} — Real Israel`,
+                        );
+                        const emailBody = encodeURIComponent(
+                          `Hi${s.name ? ` ${s.name}` : ""},\n\nThanks for reaching out.\n\n— Real Israel\n\n---\nSubmitted: ${new Date(
+                            s.created_at,
+                          ).toLocaleString()}\nSource: ${s.source}\nPage: ${s.page_path ?? ""}\n\nMessage:\n${s.message ?? ""}\n`,
+                        );
+                        const mailto = `mailto:${encodeURIComponent(
+                          s.email,
+                        )}?subject=${emailSubject}&body=${emailBody}`;
+
+                        return (
+                          <div
+                            key={s.id}
+                            className={
+                              "rounded-2xl border border-border/70 p-4 " +
+                              (isUnread ? "bg-background/40" : "bg-background/20")
+                            }
+                          >
+                            <div className="flex items-start gap-3">
+                              <Checkbox
+                                checked={checked}
+                                onCheckedChange={(v) => toggleOne(s.id, Boolean(v))}
+                                aria-label="Select"
+                              />
+                              <div className="min-w-0 flex-1">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <p className="truncate text-sm font-medium text-foreground">
+                                    {s.email}
+                                  </p>
+                                  <span className="rounded-full border border-border/70 bg-background/40 px-2 py-0.5 text-[11px] text-muted-foreground">
+                                    {s.source}
+                                  </span>
+                                  <span
+                                    className={
+                                      "rounded-full px-2 py-0.5 text-[11px] " +
+                                      (isUnread
+                                        ? "border border-primary/30 bg-primary/10 text-foreground"
+                                        : "border border-border/70 bg-background/40 text-muted-foreground")
+                                    }
+                                  >
+                                    {isUnread ? "Unread" : "Read"}
+                                  </span>
+                                </div>
+                                {s.name ? (
+                                  <p className="mt-1 text-xs text-muted-foreground">{s.name}</p>
+                                ) : null}
+                                {s.subject ? (
+                                  <p className="mt-2 text-xs text-muted-foreground">{s.subject}</p>
+                                ) : null}
+                                {s.message ? (
+                                  <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
+                                    {s.message.length > 220 ? `${s.message.slice(0, 220)}…` : s.message}
+                                  </p>
+                                ) : null}
+                                <p className="mt-3 text-xs text-muted-foreground">
+                                  {new Date(s.created_at).toLocaleString()}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="mt-4 flex items-center justify-end gap-2">
+                              <Button
+                                asChild
+                                variant="secondary"
+                                size="icon"
+                                className="h-9 w-9 rounded-lg"
+                                aria-label="Email"
+                              >
+                                <a href={mailto}>
+                                  <Mail className="h-4 w-4" />
+                                </a>
+                              </Button>
+
+                              {isUnread ? (
+                                <Button
+                                  variant="secondary"
+                                  size="icon"
+                                  className="h-9 w-9 rounded-lg"
+                                  onClick={() => markRead([s.id])}
+                                  disabled={actionBusy !== null}
+                                  aria-label="Mark read"
+                                >
+                                  <CheckCircle2 className="h-4 w-4" />
+                                </Button>
+                              ) : null}
+
+                              <Button
+                                variant="secondary"
+                                size="icon"
+                                className="h-9 w-9 rounded-lg"
+                                onClick={() => deleteItems([s.id])}
+                                disabled={actionBusy !== null}
+                                aria-label="Delete"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 )}

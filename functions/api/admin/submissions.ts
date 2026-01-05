@@ -21,9 +21,12 @@ export const onRequestGet = async (ctx: any) => {
   if (!token || token !== expected) return unauthorized();
 
   const url = new URL(ctx.request.url);
-  const limitRaw = parseInt(url.searchParams.get("limit") ?? "100", 10);
-  const limit = Number.isFinite(limitRaw) ? Math.min(Math.max(limitRaw, 1), 200) : 100;
+  const limitRaw = parseInt(url.searchParams.get("limit") ?? "25", 10);
+  const limit = Number.isFinite(limitRaw) ? Math.min(Math.max(limitRaw, 1), 200) : 25;
+  const offsetRaw = parseInt(url.searchParams.get("offset") ?? "0", 10);
+  const offset = Number.isFinite(offsetRaw) ? Math.max(offsetRaw, 0) : 0;
   const source = url.searchParams.get("source");
+  const status = url.searchParams.get("status");
   const includeDeleted = url.searchParams.get("includeDeleted") === "1";
 
   const db = ctx.env?.DB;
@@ -46,11 +49,24 @@ export const onRequestGet = async (ctx: any) => {
     binds.push(source);
   }
 
+  if (status === "unread") {
+    whereParts.push("read_at IS NULL");
+  } else if (status === "read") {
+    whereParts.push("read_at IS NOT NULL");
+  }
+
   const whereSql = whereParts.length ? ` WHERE ${whereParts.join(" AND ")}` : "";
   const statement = db
-    .prepare(`${baseSql}${whereSql} ORDER BY created_at DESC LIMIT ?`)
-    .bind(...binds, limit);
+    .prepare(`${baseSql}${whereSql} ORDER BY created_at DESC LIMIT ? OFFSET ?`)
+    .bind(...binds, limit, offset);
+
+  const countResult = await db
+    .prepare(`SELECT COUNT(1) as total FROM submissions${whereSql}`)
+    .bind(...binds)
+    .first();
+
+  const total = typeof countResult?.total === "number" ? countResult.total : 0;
 
   const result = await statement.all();
-  return json({ ok: true, items: result?.results ?? [] });
+  return json({ ok: true, items: result?.results ?? [], total, limit, offset });
 };
