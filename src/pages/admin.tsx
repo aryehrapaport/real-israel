@@ -107,6 +107,7 @@ export function AdminPage() {
     }
 
     setToken(existing);
+    load(1, { token: existing, statusFilter: "all" });
   }, [navigate]);
 
   const selectedIds = useMemo(
@@ -146,13 +147,13 @@ export function AdminPage() {
     [items],
   );
 
-  const selectedReadItems = useMemo(() => {
+  const selectedItems = useMemo(() => {
     if (selectedIds.length === 0) return [] as Submission[];
     const set = new Set(selectedIds);
-    return items.filter((s) => set.has(s.id) && Boolean(s.read_at));
+    return items.filter((s) => set.has(s.id));
   }, [items, selectedIds]);
 
-  const canExportSelectedRead = selectedReadItems.length > 1;
+  const canExportSelected = selectedItems.length > 0;
 
   function buildExportRows(subs: Submission[]) {
     return subs.map((s) => ({
@@ -171,21 +172,29 @@ export function AdminPage() {
     }));
   }
 
-  async function load(nextPage = 1) {
+  async function load(
+    nextPage = 1,
+    options?: {
+      token?: string;
+      statusFilter?: "all" | "unread" | "read";
+    },
+  ) {
     setLoading(true);
     setError(null);
 
     try {
+      const activeToken = options?.token ?? token;
+      const activeStatusFilter = options?.statusFilter ?? statusFilter;
       const offset = Math.max(0, (nextPage - 1) * pageSize);
       const qs = new URLSearchParams({
         limit: String(pageSize),
         offset: String(offset),
       });
-      if (statusFilter !== "all") qs.set("status", statusFilter);
+      if (activeStatusFilter !== "all") qs.set("status", activeStatusFilter);
 
       const response = await fetch(`/api/admin/submissions?${qs.toString()}`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${activeToken}`,
           Accept: "application/json",
         },
       });
@@ -206,7 +215,7 @@ export function AdminPage() {
       setTotal(typeof data.total === "number" ? data.total : 0);
       setSelected({});
       setPage(nextPage);
-      localStorage.setItem("admin_token", token);
+      localStorage.setItem("admin_token", activeToken);
     } catch (err) {
       setItems([]);
       setTotal(0);
@@ -323,7 +332,7 @@ export function AdminPage() {
               <Button
                 variant="secondary"
                 className="h-9 px-3 text-xs"
-                onClick={() => load(1)}
+                onClick={() => load(page)}
                 disabled={!authed || loading}
                 aria-busy={loading}
               >
@@ -382,8 +391,9 @@ export function AdminPage() {
                               variant={statusFilter === "all" ? "default" : "secondary"}
                               className="h-9 px-3 text-xs"
                               onClick={() => {
-                                setStatusFilter("all");
-                                load(1);
+                                const next = "all" as const;
+                                setStatusFilter(next);
+                                load(1, { statusFilter: next });
                               }}
                               disabled={loading}
                             >
@@ -394,8 +404,9 @@ export function AdminPage() {
                               variant={statusFilter === "unread" ? "default" : "secondary"}
                               className="h-9 px-3 text-xs"
                               onClick={() => {
-                                setStatusFilter("unread");
-                                load(1);
+                                const next = "unread" as const;
+                                setStatusFilter(next);
+                                load(1, { statusFilter: next });
                               }}
                               disabled={loading}
                             >
@@ -406,8 +417,9 @@ export function AdminPage() {
                               variant={statusFilter === "read" ? "default" : "secondary"}
                               className="h-9 px-3 text-xs"
                               onClick={() => {
-                                setStatusFilter("read");
-                                load(1);
+                                const next = "read" as const;
+                                setStatusFilter(next);
+                                load(1, { statusFilter: next });
                               }}
                               disabled={loading}
                             >
@@ -455,17 +467,17 @@ export function AdminPage() {
                             variant="secondary"
                             className="h-9 px-3 text-xs"
                             onClick={() => {
-                              const rows = buildExportRows(selectedReadItems);
+                              const rows = buildExportRows(selectedItems);
                               downloadCsv(
-                                `submissions-read-selected-${new Date().toISOString().slice(0, 10)}.csv`,
+                                `submissions-selected-${new Date().toISOString().slice(0, 10)}.csv`,
                                 rows,
                               );
                             }}
-                            disabled={!canExportSelectedRead}
-                            title="Select 2+ read submissions to export"
+                            disabled={!canExportSelected}
+                            title="Export selected submissions"
                           >
                             <Download className="mr-2 h-4 w-4" />
-                            CSV (read)
+                            CSV
                           </Button>
 
                           <Button
@@ -473,17 +485,17 @@ export function AdminPage() {
                             variant="secondary"
                             className="h-9 px-3 text-xs"
                             onClick={() => {
-                              const rows = buildExportRows(selectedReadItems);
+                              const rows = buildExportRows(selectedItems);
                               downloadXlsx(
-                                `submissions-read-selected-${new Date().toISOString().slice(0, 10)}.xlsx`,
+                                `submissions-selected-${new Date().toISOString().slice(0, 10)}.xlsx`,
                                 rows,
                               );
                             }}
-                            disabled={!canExportSelectedRead}
-                            title="Select 2+ read submissions to export"
+                            disabled={!canExportSelected}
+                            title="Export selected submissions"
                           >
                             <FileSpreadsheet className="mr-2 h-4 w-4" />
-                            Excel (read)
+                            Excel
                           </Button>
                         </div>
                       </div>
