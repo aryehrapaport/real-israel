@@ -47,8 +47,8 @@ export const onRequestPost = async (ctx: any) => {
   await db
     .prepare(
       `INSERT INTO submissions
-      (id, created_at, source, subject, name, email, phone, location, timeline, message, page_path, user_agent)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      (id, created_at, source, subject, name, email, phone, location, timeline, message, page_path, user_agent, read_at, deleted_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL)`
     )
     .bind(
       id,

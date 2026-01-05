@@ -24,6 +24,7 @@ export const onRequestGet = async (ctx: any) => {
   const limitRaw = parseInt(url.searchParams.get("limit") ?? "100", 10);
   const limit = Number.isFinite(limitRaw) ? Math.min(Math.max(limitRaw, 1), 200) : 100;
   const source = url.searchParams.get("source");
+  const includeDeleted = url.searchParams.get("includeDeleted") === "1";
 
   const db = ctx.env?.DB;
   if (!db) {
@@ -31,13 +32,24 @@ export const onRequestGet = async (ctx: any) => {
   }
 
   const baseSql =
-    "SELECT id, created_at, source, subject, name, email, phone, location, timeline, message, page_path FROM submissions";
+    "SELECT id, created_at, source, subject, name, email, phone, location, timeline, message, page_path, read_at, deleted_at FROM submissions";
 
-  const statement = source
-    ? db
-        .prepare(`${baseSql} WHERE source = ? ORDER BY created_at DESC LIMIT ?`)
-        .bind(source, limit)
-    : db.prepare(`${baseSql} ORDER BY created_at DESC LIMIT ?`).bind(limit);
+  const whereParts: string[] = [];
+  const binds: unknown[] = [];
+
+  if (!includeDeleted) {
+    whereParts.push("deleted_at IS NULL");
+  }
+
+  if (source) {
+    whereParts.push("source = ?");
+    binds.push(source);
+  }
+
+  const whereSql = whereParts.length ? ` WHERE ${whereParts.join(" AND ")}` : "";
+  const statement = db
+    .prepare(`${baseSql}${whereSql} ORDER BY created_at DESC LIMIT ?`)
+    .bind(...binds, limit);
 
   const result = await statement.all();
   return json({ ok: true, items: result?.results ?? [] });
