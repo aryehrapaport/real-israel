@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Menu, Moon, Sun, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -81,20 +81,24 @@ export function SiteHeader() {
   const nav = useMemo(
     () =>
       [
-        { to: "/about", label: "About" },
-        { to: "/why-presence", label: "Why Presence" },
-        { to: "/services", label: "Services" },
-        { to: "/contact", label: "Contact" },
+        { to: "/#home", label: "Home" },
+        { to: "/#problem", label: "Beware" },
+        { to: "/#why-us", label: "Why Choose Us" },
+        { to: "/#services", label: "Services" },
+        { to: "/#premium", label: "Premium" },
+        { to: "/#contact", label: "Contact" },
       ] as const,
     [],
   );
+
+  const activeHash = location.pathname === "/" ? location.hash || "#home" : "";
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-border/60 bg-background/70 backdrop-blur">
       <div className="container flex h-16 items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <Link
-            to="/"
+            to="/#home"
             className="text-sm font-semibold tracking-tight text-foreground"
             aria-label="Home"
           >
@@ -105,20 +109,22 @@ export function SiteHeader() {
             className="hidden items-center gap-1 md:flex"
             aria-label="Primary"
           >
-            {nav.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                className={({ isActive }) =>
-                  cn(
+            {nav.map((item) => {
+              const hash = item.to.includes("#") ? item.to.slice(item.to.indexOf("#")) : "";
+              const isActive = Boolean(hash) && hash === activeHash;
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className={cn(
                     "rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground",
                     isActive ? "text-foreground" : undefined,
-                  )
-                }
-              >
-                {item.label}
-              </NavLink>
-            ))}
+                  )}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
           </nav>
         </div>
 
@@ -164,22 +170,25 @@ export function SiteHeader() {
                 >
                   {nav.map((item) => (
                     <motion.div key={item.to} variants={mobileItemVariants}>
-                      <NavLink
+                      <Link
                         to={item.to}
                         onClick={() => setMobileMenuOpen(false)}
-                        className={({ isActive }) =>
-                          cn(
+                      >
+                        <span
+                          className={cn(
                             "block rounded-xl border border-transparent px-3 py-3 text-sm",
                             "text-muted-foreground transition-colors hover:text-foreground",
                             "hover:border-border/70 hover:bg-muted/20",
-                            isActive
-                              ? "border-border/70 bg-muted/20 text-foreground"
-                              : undefined,
-                          )
-                        }
-                      >
-                        {item.label}
-                      </NavLink>
+                            (() => {
+                              const hash = item.to.includes("#") ? item.to.slice(item.to.indexOf("#")) : "";
+                              const isActive = Boolean(hash) && hash === activeHash;
+                              return isActive ? "border-border/70 bg-muted/20 text-foreground" : undefined;
+                            })(),
+                          )}
+                        >
+                          {item.label}
+                        </span>
+                      </Link>
                     </motion.div>
                   ))}
                 </motion.nav>
@@ -200,7 +209,7 @@ export function SiteHeader() {
                     className="w-full"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <Link to="/contact" state={{ from: location.pathname }}>
+                    <Link to="/#contact" state={{ from: location.pathname }}>
                       Request a Consultation
                     </Link>
                   </Button>
@@ -214,7 +223,7 @@ export function SiteHeader() {
           </div>
 
           <Button asChild variant="premium" className="hidden md:inline-flex">
-            <Link to="/contact" state={{ from: location.pathname }}>
+            <Link to="/#contact" state={{ from: location.pathname }}>
               Request a Consultation
             </Link>
           </Button>

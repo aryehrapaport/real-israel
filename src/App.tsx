@@ -3,14 +3,11 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-route
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { ScrollToTop } from "@/app/scroll-to-top";
+import { ScrollToHash } from "@/app/scroll-to-hash";
 import { SiteBackground } from "@/components/site-background";
-import { AboutPage } from "@/pages/about";
 import { AdminLoginPage } from "@/pages/admin-login";
 import { AdminPage } from "@/pages/admin";
-import { ContactPage } from "@/pages/contact";
 import { HomePage } from "@/pages/home";
-import { ServicesPage } from "@/pages/services";
-import { WhyPresencePage } from "@/pages/why-presence";
 import { PageTransition } from "@/components/page-transition";
 
 function AnimatedRoutes() {
@@ -29,39 +26,20 @@ function AnimatedRoutes() {
         />
         <Route
           path="/about"
-          element={
-            <PageTransition>
-              <AboutPage />
-            </PageTransition>
-          }
+          element={<Navigate to="/#why-us" replace />}
         />
         <Route
           path="/why-presence"
-          element={
-            <PageTransition>
-              <WhyPresencePage />
-            </PageTransition>
-          }
+          element={<Navigate to="/#problem" replace />}
         />
         <Route
           path="/services"
-          element={
-            <PageTransition>
-              <ServicesPage />
-            </PageTransition>
-          }
+          element={<Navigate to="/#services" replace />}
         />
-        <Route path="/scope" element={<Navigate to="/contact" replace />} />
-        <Route path="/pricing" element={<Navigate to="/contact" replace />} />
-        <Route path="/resources" element={<Navigate to="/contact" replace />} />
-        <Route
-          path="/contact"
-          element={
-            <PageTransition>
-              <ContactPage />
-            </PageTransition>
-          }
-        />
+        <Route path="/scope" element={<Navigate to="/#contact" replace />} />
+        <Route path="/pricing" element={<Navigate to="/#contact" replace />} />
+        <Route path="/resources" element={<Navigate to="/#contact" replace />} />
+        <Route path="/contact" element={<Navigate to="/#contact" replace />} />
         <Route
           path="/admin"
           element={
@@ -87,6 +65,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
+      <ScrollToHash />
       <div className="relative isolate min-h-dvh bg-background">
         <SiteBackground />
         <div className="relative z-10">

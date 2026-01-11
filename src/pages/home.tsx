@@ -1,12 +1,74 @@
-import { ArrowRight, Clock, Eye, Hand, ShieldCheck, Target } from "lucide-react";
+import {
+  ArrowRight,
+  BadgeCheck,
+  CheckCircle2,
+  ClipboardCheck,
+  Globe,
+  MessageSquare,
+  ShieldCheck,
+  Target,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { HeroVisual } from "@/components/hero-visual";
-import { ComparisonBlock } from "@/components/comparison-block";
-import { MediaFrame } from "@/components/media-frame";
 import { Seo } from "@/components/seo";
 import { Container, Divider, Section, SectionHeader } from "@/components/section";
 import { Button } from "@/components/ui/button";
+import { ContactSection } from "@/components/contact-section";
+
+const servicesIncluded = [
+  {
+    title: "Finding apartment",
+    items: ["Viewing apartment", "Engaging with brokers", "Negotiation"],
+    imageSrc:
+      "https://images.unsplash.com/photo-1501183638710-841dd1904471?auto=format&fit=crop&w=1600&q=80",
+    imageAlt: "Apartment interior",
+  },
+  {
+    title: "Purchasing / Negotiating apartment",
+    items: ["Lawyers", "Accountants", "Payment coordination", "Israeli tax payments"],
+    imageSrc:
+      "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=1600&q=80",
+    imageAlt: "Signing documents",
+  },
+  {
+    title: "Contractor review & qualification",
+    items: [
+      "Measurers, designers, contractors, electricians, plumbers",
+      "Licensed, insured",
+    ],
+    imageSrc:
+      "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=1600&q=80",
+    imageAlt: "Contractor tools",
+  },
+  {
+    title: "Project Review & Coordination",
+    items: [
+      "Building requirements",
+      "Inspector reviews",
+      "Timeline mapping",
+      "Weekly progress reports",
+      "Communication",
+    ],
+    imageSrc:
+      "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1600&q=80",
+    imageAlt: "Project planning documents",
+  },
+  {
+    title: "Delivery & placement",
+    items: ["Coordinate receipt of furniture", "Electrical products"],
+    imageSrc:
+      "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=1600&q=80",
+    imageAlt: "Delivery boxes",
+  },
+] as const;
+
+const whyChooseUs = [
+  "Client aligned",
+  "Eyes & ears on the ground, speak Hebrew",
+  "We work with qualified suppliers and contractors",
+  "One point person of accountability",
+] as const;
 
 export function HomePage() {
   const heroContainer = {
@@ -21,16 +83,6 @@ export function HomePage() {
     show: { opacity: 1, y: 0, transition: { duration: 0.45 } },
   };
 
-  const gridContainer = {
-    hidden: {},
-    show: { transition: { staggerChildren: 0.06 } },
-  };
-
-  const gridItem = {
-    hidden: { opacity: 0, y: 12 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.45 } },
-  };
-
   return (
     <>
       <Seo
@@ -38,7 +90,7 @@ export function HomePage() {
         description="A discreet presence based coordination service in Israel for international buyers, renovators, and builders who cannot be on site." 
       />
 
-      <section className="relative overflow-hidden">
+      <section id="home" className="relative overflow-hidden">
         <Container className="py-14 sm:py-18 lg:py-24">
           <motion.div
             className="grid items-start gap-10 lg:grid-cols-12"
@@ -59,7 +111,7 @@ export function HomePage() {
                 variants={heroItem}
                 className="mt-5 text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl"
               >
-                Your Eyes and Hands on the Ground in Israel
+                Project management services for real estate in Israel
               </motion.h1>
 
               <motion.p
@@ -77,7 +129,6 @@ export function HomePage() {
                 <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-6 sm:gap-y-3">
                   {[
                     { icon: ShieldCheck, label: "Neutral reporting" },
-                    { icon: Eye, label: "Local verification" },
                     { icon: Target, label: "Actionable next steps" },
                   ].map((item) => (
                     <div key={item.label} className="inline-flex items-center gap-2">
@@ -95,13 +146,13 @@ export function HomePage() {
                 className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center"
               >
                 <Button asChild variant="premium" size="lg" className="group">
-                  <Link to="/contact">
+                  <Link to="/#contact">
                     Request a Consultation
                     <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                   </Link>
                 </Button>
                 <Button asChild variant="secondary" size="lg">
-                  <Link to="/why-presence">Why presence matters</Link>
+                  <Link to="/#problem">Beware of costly mistakes</Link>
                 </Button>
               </motion.div>
             </div>
@@ -124,291 +175,305 @@ export function HomePage() {
 
       <Divider />
 
-      <Section>
-        <Container>
-          <SectionHeader
-            eyebrow="The problem of distance"
-            title="When you are far away, clarity gets fragile"
-            description="Projects rarely fail from one big mistake. They drift through small misses, unclear ownership, and delayed decisions. Presence keeps reality close." 
-          />
+      <div id="problem">
+        <Section>
+          <Container>
+            <SectionHeader
+              eyebrow="Project management services for real estate in Israel"
+              title="Beware of costly mistakes, delays and stress"
+              description="Help international buyers build a home in Israel."
+            />
 
-          <motion.div
-            className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3"
-            variants={gridContainer}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, amount: 0.25 }}
-          >
-            {[
-              {
-                icon: Eye,
-                title: "Visibility",
-                body: "You get concrete status: what changed, what is true, and what is next.",
-                imageSrc:
-                  "https://images.pexels.com/photos/1216589/pexels-photo-1216589.jpeg?auto=compress&cs=tinysrgb&w=1600&fit=crop",
-                imageAlt: "Engineers reviewing plans",
-              },
-              {
-                icon: Hand,
-                title: "Follow through",
-                body: "Commitments become tracked actions, not vague reassurance.",
-                imageSrc:
-                  "https://images.pexels.com/photos/416405/pexels-photo-416405.jpeg?auto=compress&cs=tinysrgb&w=1600&fit=crop",
-                imageAlt: "Team working on plans",
-              },
-              {
-                icon: ShieldCheck,
-                title: "Risk containment",
-                body: "Small issues get contained early before they compound into cost and delay.",
-                imageSrc:
-                  "https://images.pexels.com/photos/1463917/pexels-photo-1463917.jpeg?auto=compress&cs=tinysrgb&w=1600&fit=crop",
-                imageAlt: "Building under construction",
-              },
-              {
-                icon: Clock,
-                title: "Momentum",
-                body: "Decisions get unblocked sooner so the timeline keeps moving.",
-                imageSrc:
-                  "https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=1600&fit=crop",
-                imageAlt: "Team reviewing a schedule",
-              },
-              {
-                icon: Target,
-                title: "Scope clarity",
-                body: "Everyone stays aligned on what is included, what is pending, and what needs approval.",
-                imageSrc:
-                  "https://images.pexels.com/photos/325229/pexels-photo-325229.jpeg?auto=compress&cs=tinysrgb&w=1600&fit=crop",
-                imageAlt: "Blueprint and measuring tape",
-              },
-              {
-                icon: ShieldCheck,
-                title: "Vendor alignment",
-                body: "Instructions are confirmed on site so meaning does not drift across time zones.",
-                imageSrc:
-                  "https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=1600&fit=crop",
-                imageAlt: "Team discussion",
-              },
-            ].map((item) => (
-              <motion.article
-                key={item.title}
-                variants={gridItem}
-                whileHover={{ y: -4 }}
-                transition={{ duration: 0.35, ease: "easeOut" }}
-                className="group relative overflow-hidden rounded-2xl border border-border/70 bg-card/60"
-              >
-                <div className="relative aspect-[16/10] w-full overflow-hidden">
+            <div className="mt-10 grid items-center gap-10 lg:grid-cols-12">
+              <div className="lg:col-span-7">
+                <div className="rounded-2xl border border-border/70 bg-card/60 p-6 sm:p-8">
+                  <p className="text-lg font-semibold tracking-tight sm:text-xl">
+                    Long distance projects fail quietly.
+                  </p>
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
+                    The biggest risks are not dramatic. They are small gaps that compound: unclear responsibility,
+                    language friction, and assumptions that go unverified.
+                  </p>
+
+                  <div className="mt-6 grid gap-4">
+                    {[
+                      {
+                        icon: Globe,
+                        title: "Distance and language barriers",
+                        body: "Critical details get lost across time zones and translation.",
+                      },
+                      {
+                        icon: ClipboardCheck,
+                        title: "Different building standards, suppliers and contractors",
+                        body: "What is ‘normal’ locally may differ from your expectations.",
+                      },
+                      {
+                        icon: MessageSquare,
+                        title: "Limited local oversight, accountability, miscommunication",
+                        body: "Without presence, issues surface late and cost more to fix.",
+                      },
+                    ].map((item) => (
+                      <div
+                        key={item.title}
+                        className="flex gap-4 rounded-xl border border-border/70 bg-background/60 p-4"
+                      >
+                        <div className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border/70 bg-background/60">
+                          <item.icon className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-foreground sm:text-base">{item.title}</p>
+                          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <Button asChild variant="premium">
+                      <Link to="/#contact">Talk to us</Link>
+                    </Button>
+                    <Button asChild variant="outline">
+                      <Link to="/#premium">What “premium” means</Link>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="lg:col-span-5">
+                <div className="relative overflow-hidden rounded-2xl border border-border/70 bg-card/60 shadow-sm shadow-black/5">
                   <img
-                    src={item.imageSrc}
-                    alt={item.imageAlt}
-                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                    src="https://images.pexels.com/photos/416405/pexels-photo-416405.jpeg?auto=compress&cs=tinysrgb&w=1600&fit=crop"
+                    alt="Reviewing plans on site"
+                    className="h-full w-full object-cover"
                     loading="lazy"
                     decoding="async"
                     referrerPolicy="no-referrer"
                     crossOrigin="anonymous"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/85 via-background/15 to-transparent" />
-                  <div className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/70 px-3 py-1 backdrop-blur-sm">
-                    <item.icon className="h-4 w-4 text-primary" />
-                    <span className="text-xs font-medium tracking-[0.18em] text-muted-foreground">
-                      {item.title.toUpperCase()}
-                    </span>
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/10 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <div className="rounded-xl border border-border/60 bg-background/55 px-4 py-3 backdrop-blur-sm">
+                      <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                        Reality, documented
+                      </p>
+                      <p className="mt-1 text-sm text-foreground">Clear status. Clear next steps.</p>
+                    </div>
                   </div>
                 </div>
-
-                <div className="p-5 sm:p-6">
-                  <p className="text-xl font-semibold leading-tight tracking-tight text-foreground">
-                    {item.title}
-                  </p>
-                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
-                    {item.body}
-                  </p>
-                </div>
-              </motion.article>
-            ))}
-          </motion.div>
-        </Container>
-      </Section>
+              </div>
+            </div>
+          </Container>
+        </Section>
+      </div>
 
       <Divider />
 
-      <Section>
-        <Container>
-          <SectionHeader
-            eyebrow="How presence works"
-            title="A simple process, repeated consistently"
-            description="Routine, documentation, and calm follow through, without drama." 
-          />
+      <div id="why-us">
+        <Section>
+          <Container>
+            <SectionHeader
+              eyebrow="Why choose us"
+              title="Why Choose Us"
+              description="Client aligned coordination with a single accountable point person on the ground."
+            />
 
-          <div className="mt-12 grid gap-6 lg:grid-cols-12">
-            <div className="lg:col-span-5">
-              <MediaFrame
-                title="A calm cadence"
-                caption="You always know what changed, what it means, and what needs a decision."
-                className="min-h-[320px]"
-              >
-                <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/60 px-3 py-1">
-                  <Target className="h-4 w-4 text-primary" />
-                  <span className="text-xs font-medium tracking-[0.18em] text-muted-foreground">
-                    CONSISTENT CADENCE
-                  </span>
+            <div className="mt-10 grid items-center gap-10 lg:grid-cols-12">
+              <div className="lg:col-span-5">
+                <div className="relative overflow-hidden rounded-2xl border border-border/70 bg-card/60 shadow-sm shadow-black/5">
+                  <img
+                    src="https://images.pexels.com/photos/1216589/pexels-photo-1216589.jpeg?auto=compress&cs=tinysrgb&w=1600&fit=crop"
+                    alt="On site coordination"
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                    decoding="async"
+                    referrerPolicy="no-referrer"
+                    crossOrigin="anonymous"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/75 via-background/10 to-transparent" />
                 </div>
+              </div>
 
-                <div className="mt-8 grid gap-4">
-                  {["Photo and notes", "Decision prompts", "Next actions"].map((item) => (
-                    <div
-                      key={item}
-                      className="inline-flex items-center gap-2 rounded-xl border border-border/70 bg-background/50 px-3 py-3"
-                    >
-                      <span className="h-1.5 w-1.5 rounded-full bg-primary/70" />
-                      <span className="text-sm text-muted-foreground">{item}</span>
-                    </div>
-                  ))}
+              <div className="lg:col-span-7">
+                <div className="rounded-2xl border border-border/70 bg-card/60 p-6 sm:p-8">
+                  <p className="text-lg font-semibold tracking-tight sm:text-xl">A calm partner on the ground.</p>
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
+                    One point of accountability, with local context and clear communication—so decisions stay grounded in reality.
+                  </p>
+
+                  <ul className="mt-6 space-y-3 text-sm text-muted-foreground sm:text-base">
+                    {whyChooseUs.map((item) => (
+                      <li key={item} className="flex items-start gap-3">
+                        <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <Button asChild variant="premium">
+                      <Link to="/#contact">Request a consultation</Link>
+                    </Button>
+                    <Button asChild variant="outline">
+                      <Link to="/#contact">Send a message</Link>
+                    </Button>
+                  </div>
                 </div>
-              </MediaFrame>
+              </div>
+            </div>
+          </Container>
+        </Section>
+      </div>
+
+      <Divider />
+
+      <div id="services">
+        <Section>
+          <Container>
+            <SectionHeader
+              eyebrow="Services included"
+              title="Services Included"
+              description="A clear scope covering the core phases of finding, purchasing, and coordinating work on the ground."
+            />
+
+            <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {servicesIncluded.map((block) => (
+                <div
+                  key={block.title}
+                  className="overflow-hidden rounded-2xl border border-border/70 bg-card/60 shadow-sm shadow-black/5"
+                >
+                  <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted/20">
+                    <img
+                      src={block.imageSrc}
+                      alt={block.imageAlt}
+                      className="h-full w-full object-cover"
+                      loading="lazy"
+                      decoding="async"
+                      referrerPolicy="no-referrer"
+                      crossOrigin="anonymous"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-background/10 to-transparent" />
+                  </div>
+
+                  <div className="p-6 sm:p-7">
+                    <p className="text-xl font-semibold tracking-tight">{block.title}</p>
+                    <div className="mt-4 h-px w-full bg-border/70" />
+                    <ul className="mt-4 space-y-2 text-sm text-muted-foreground sm:text-base">
+                      {block.items.map((item) => (
+                        <li key={item} className="flex items-start gap-3">
+                          <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              ))}
             </div>
 
-            <motion.div
-              className="lg:col-span-7"
-              variants={gridContainer}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, amount: 0.3 }}
-            >
-              <ol className="relative space-y-4 pl-10">
-                <div className="pointer-events-none absolute left-4 top-0 h-full w-px bg-border/70" />
-
-                {[
-                  {
-                    n: "01",
-                    icon: Target,
-                    title: "Align",
-                    body: "Agree on priorities, risk tolerance, and the decisions you want protected.",
-                    bullets: [
-                      "What matters most right now",
-                      "What counts as evidence",
-                      "What needs approval",
-                      "What can wait",
-                    ],
-                  },
-                  {
-                    n: "02",
-                    icon: Eye,
-                    title: "Verify",
-                    body: "On the ground checks that turn assumptions into clarity.",
-                    bullets: [
-                      "Site visit and photos",
-                      "Status confirmation",
-                      "Questions answered in context",
-                      "Issues flagged early",
-                    ],
-                  },
-                  {
-                    n: "03",
-                    icon: Clock,
-                    title: "Decide",
-                    body: "Short, structured prompts so decisions happen on time.",
-                    bullets: [
-                      "Options and tradeoffs",
-                      "Cost and schedule impact",
-                      "Recommended next action",
-                      "Owner assigned",
-                    ],
-                  },
-                  {
-                    n: "04",
-                    icon: ShieldCheck,
-                    title: "Follow through",
-                    body: "Actions get tracked to completion and confirmed on site.",
-                    bullets: [
-                      "Commitments recorded",
-                      "Work verified",
-                      "Documentation kept current",
-                      "Surprises reduced",
-                    ],
-                  },
-                ].map((step) => (
-                  <motion.li
-                    key={step.n}
-                    variants={gridItem}
-                    whileHover={{ y: -3 }}
-                    transition={{ duration: 0.35, ease: "easeOut" }}
-                    className="relative"
-                  >
-                    <div className="absolute left-0 top-7 grid h-8 w-8 place-items-center rounded-full border border-border/70 bg-background/70">
-                      <step.icon className="h-4 w-4 text-primary" />
-                    </div>
-
-                    <article className="rounded-2xl border border-border/70 bg-card/60 p-5 sm:p-6">
-                      <div className="flex flex-wrap items-center justify-between gap-3">
-                        <div className="inline-flex items-center gap-3">
-                          <div className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/70 bg-background/60">
-                            <span className="text-xs font-medium tracking-[0.18em] text-muted-foreground">
-                              {step.n}
-                            </span>
-                          </div>
-                          <p className="text-lg font-semibold leading-tight tracking-tight text-foreground">
-                            {step.title}
-                          </p>
-                        </div>
-
-                        <div className="inline-flex items-center rounded-full border border-border/70 bg-background/50 px-3 py-1">
-                          <span className="text-xs font-medium tracking-[0.18em] text-muted-foreground">
-                            STEP {step.n}
-                          </span>
-                        </div>
-                      </div>
-
-                      <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
-                        {step.body}
-                      </p>
-
-                      <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-                        {step.bullets.map((b) => (
-                          <li key={b} className="flex items-start gap-2 text-sm text-muted-foreground">
-                            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/70" />
-                            <span>{b}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </article>
-                  </motion.li>
-                ))}
-              </ol>
-            </motion.div>
-          </div>
-        </Container>
-      </Section>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center">
+              <Button asChild variant="premium">
+                <Link to="/#contact">Get a suggested scope</Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link to="/#why-us">Why choose us</Link>
+              </Button>
+            </div>
+          </Container>
+        </Section>
+      </div>
 
       <Divider />
 
-      <Section>
-        <Container>
-          <SectionHeader
-            eyebrow="Premium coordination philosophy"
-            title="Less noise. More certainty."
-            description="We focus on preventing the avoidable: unclear scope, missed decisions, misunderstood instructions, and late surprises." 
-          />
+      <div id="premium">
+        <Section>
+          <Container>
+            <SectionHeader
+              eyebrow="Premium Service"
+              title="Premium means fewer surprises"
+              description="It’s not about doing more work — it’s about having your eyes and ears on the ground and preventing very expensive mistakes and long delays."
+            />
 
-          <div className="mt-10">
-            <ComparisonBlock />
-          </div>
+            <div className="mt-10 grid items-center gap-10 lg:grid-cols-12">
+              <div className="lg:col-span-7">
+                <div className="rounded-2xl border border-border/70 bg-card/60 p-6 sm:p-10">
+                  <p className="text-balance text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
+                    “We provide a premium service. Its not about doing more work — it’s about having your eyes
+                    and ears on the ground and preventing very expensive mistakes and long delays.”
+                  </p>
 
-          <motion.div
-            className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center"
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.4 }}
-            transition={{ duration: 0.45, ease: "easeOut" }}
-          >
-            <Button asChild variant="outline">
-              <Link to="/services">Explore services</Link>
-            </Button>
-            <Button asChild variant="secondary">
-              <Link to="/contact">Start with a message</Link>
-            </Button>
-          </motion.div>
-        </Container>
-      </Section>
+                  <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                    {[
+                      {
+                        icon: ShieldCheck,
+                        title: "Client-first reporting",
+                        body: "Neutral updates you can trust and act on.",
+                      },
+                      {
+                        icon: Target,
+                        title: "Decision clarity",
+                        body: "Short prompts that reduce back-and-forth.",
+                      },
+                      {
+                        icon: BadgeCheck,
+                        title: "Verified follow-through",
+                        body: "Confirm what happened — not what was promised.",
+                      },
+                      {
+                        icon: ClipboardCheck,
+                        title: "Structured coordination",
+                        body: "Keep people aligned across time zones.",
+                      },
+                    ].map((item) => (
+                      <div
+                        key={item.title}
+                        className="rounded-xl border border-border/70 bg-background/60 p-4"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/70 bg-background/60">
+                            <item.icon className="h-4 w-4 text-primary" />
+                          </div>
+                          <p className="text-sm font-semibold text-foreground">{item.title}</p>
+                        </div>
+                        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <Button asChild variant="premium">
+                      <Link to="/#contact">Request a consultation</Link>
+                    </Button>
+                    <Button asChild variant="outline">
+                      <Link to="/#services">See what’s included</Link>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="lg:col-span-5">
+                <div className="relative overflow-hidden rounded-2xl border border-border/70 bg-card/60 shadow-sm shadow-black/5">
+                  <img
+                    src="https://images.pexels.com/photos/5584052/pexels-photo-5584052.jpeg?auto=compress&cs=tinysrgb&w=1600&fit=crop"
+                    alt="On site documentation"
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                    decoding="async"
+                    referrerPolicy="no-referrer"
+                    crossOrigin="anonymous"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/75 via-background/15 to-transparent" />
+                </div>
+              </div>
+            </div>
+          </Container>
+        </Section>
+      </div>
+
+      <Divider />
+
+      <div id="contact">
+        <ContactSection />
+      </div>
 
       <Divider />
     </>
