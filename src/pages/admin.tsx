@@ -325,7 +325,7 @@ export function AdminPage() {
             <SectionHeader
               eyebrow="Admin"
               title="Submissions"
-              description="Contact and briefing PDF requests."
+              description="Contact submissions inbox."
             />
 
             <div className="flex items-center gap-2">

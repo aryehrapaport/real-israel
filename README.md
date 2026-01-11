@@ -1,150 +1,244 @@
-# Real Israel
+# Real Israel — Developer handoff
 
-Premium marketing site + lightweight admin inbox for intake submissions.
+This repo contains a one-page marketing site and a lightweight admin inbox for contact submissions.
 
-This repo contains:
-- A Vite + React + TypeScript single-page app (SPA)
-- Cloudflare Pages Functions endpoints
-- A Cloudflare D1 database schema + inbox UI at `/admin`
+At a glance:
+
+- Public site is a single page (`/`) with anchored navigation (`/#home`, `/#why-us`, `/#services`, `/#contact`).
+- Contact form sends an email (FormSubmit) and also persists the submission to Cloudflare D1 via Pages Functions.
+- Admin inbox lives at `/admin` (with `/admin/login` gating) and reads from D1. It supports search, pagination, mark-read, soft-delete, and export (CSV/XLSX).
 
 ## Tech stack
 
 - Frontend: Vite, React, TypeScript, React Router
-- UI: Tailwind + shadcn/ui components, Framer Motion, Lucide icons
-- Forms: react-hook-form + zod
+- UI: Tailwind + shadcn/ui, Framer Motion, Lucide icons
+- Forms/validation: react-hook-form + zod
 - Email notifications: FormSubmit (client-side POST)
-- Persistence: Cloudflare D1 (Pages Functions)
+- Persistence + API: Cloudflare Pages Functions + Cloudflare D1
 
 ## Quick start (local)
 
-- Install: `npm install`
-- Run: `npm run dev`
-- Build: `npm run build`
+Install and run:
 
-### Local environment
+```bash
+npm install
+npm run dev
+```
 
-- Copy `.env.example` → `.env`
-- Set `VITE_FORMSUBMIT_EMAIL` to the inbox that should receive email notifications.
+Build:
 
-Important: Vite `VITE_*` variables are embedded into the client build at build time.
+```bash
+npm run build
+```
 
-## Project structure (where things are)
+### Local environment variables
 
-High level:
+Create `.env` (Vite reads `VITE_*` variables at build time):
 
-- `src/` — SPA source
-  - `src/App.tsx` — routes
-  - `src/pages/` — page-level routes
-  - `src/components/` — shared UI/sections
-  - `src/lib/` — shared logic (schema + submission helpers)
-- `functions/` — Cloudflare Pages Functions (API)
-  - `functions/api/intake.ts` — `POST /api/intake` (store submission in D1)
-  - `functions/api/admin/submissions.ts` — `GET /api/admin/submissions` (list submissions)
-  - `functions/api/admin/mark-read.ts` — `POST /api/admin/mark-read` (bulk mark read)
-  - `functions/api/admin/delete.ts` — `POST /api/admin/delete` (bulk soft delete)
-- `migrations/` — D1 schema migrations
-  - `migrations/0001_init.sql`
-  - `migrations/0002_read_delete.sql`
-- `public/_redirects` — SPA fallback for Cloudflare Pages
-
-## Routes & pages
-
-Routes are defined in [src/App.tsx](src/App.tsx).
-
-Public pages:
-- `/` — home
-- `/about`, `/why-presence`, `/services`
-- `/contact` — primary conversion flow
+```bash
+VITE_FORMSUBMIT_EMAIL=your-inbox@example.com
+```
 
 Notes:
-- `/scope`, `/pricing`, `/resources` currently redirect to `/contact`.
-- The “briefing PDF gate” lives inside the Contact page and can auto-open via the query param `/contact?briefing=1`.
 
-Admin:
-- `/admin/login` — admin sign-in screen (stores the admin password locally)
-- `/admin` — inbox dashboard (requires being signed in)
+- In `npm run dev`, Cloudflare Pages Functions are not running, so `POST /api/intake` will 404.
+- That’s OK: the submit helper attempts **email + D1 in parallel**, and succeeds if either one succeeds. In local dev, email can still succeed and D1 will log a warning.
 
-## Intake flow (email + D1)
+## What the app does (behavior)
 
-All intake submissions share one schema and one submit helper.
+### Public site
 
-- Schema: `contactIntakeSchema` in `src/lib/contact-intake.ts`
-- Submit helper: `submitContactIntake()` in `src/lib/formsubmit.ts`
+- Single page at `/`.
+- Fixed header with anchor links (hash navigation).
+- Smooth scrolling to sections with an offset so content isn’t hidden behind the fixed header.
 
-What happens on submit:
-- Sends email notification via FormSubmit: `submitContactIntakeToFormSubmit()`
-- Saves a copy into D1 via Pages Functions: `POST /api/intake`
+Key files:
 
-Behavior:
-- Both are attempted in parallel.
-- The overall submit succeeds if either email OR D1 succeeds.
-- Only fails if both fail.
+- `src/pages/home.tsx` — all public sections, including the contact section at the bottom.
+- `src/components/site-header.tsx` — header + anchor nav + theme toggle (defaults to light).
+- `src/app/scroll-to-hash.tsx` — smooth scroll on hash changes with a header offset.
 
-Diagnostics:
-- If email delivery fails, details are logged to the browser console (status + response body snippet).
-- If D1 save fails, that is also logged.
+Legacy routes:
 
-## Admin inbox (D1-backed)
+Routes like `/about`, `/services`, `/contact`, etc. redirect to anchor locations. See `src/App.tsx`.
 
-The inbox is a small internal tool intended to be used by a single operator.
+### Contact submission flow (email + D1)
 
-UI:
-- Page: `src/pages/admin.tsx`
-- Features:
-  - filter tabs: All / Unread / Read
-  - pagination
-  - mark read (single + bulk)
-  - soft delete (single + bulk)
-  - select-all (current page)
-  - export selected to CSV or Excel
-  - “Email” button uses `mailto:`
+One submit action triggers two independent deliveries:
+
+1) Email notification via FormSubmit
+2) D1 persistence via Cloudflare Pages Function (`POST /api/intake`)
+
+The overall UX succeeds if either one succeeds; it only errors if both fail.
+
+Key files:
+
+- `src/lib/contact-intake.ts` — zod schema (`contactIntakeSchema`) and TypeScript types.
+- `src/lib/formsubmit.ts` — `submitContactIntake()` and the two transports.
+- `src/components/contact-section.tsx` — form UI + spam protection + submit handling.
+
+Spam protection (lightweight):
+
+- Honeypot input (hidden field that should remain empty)
+- Minimum time-on-page before submit (prevents instant bot submits)
+
+### Admin inbox
+
+Admin UI:
+
+- `/admin/login` stores the token into `localStorage.admin_token`.
+- `/admin` loads submissions from the API using `Authorization: Bearer <token>`.
+
+Features:
+
+- List with pagination
+- Read/unread filtering
+- Client-side search within the loaded page
+- Bulk mark as read
+- Bulk soft delete
+- Export selected to CSV or Excel (`xlsx`)
+
+Key files:
+
+- `src/pages/admin-login.tsx` — token entry screen.
+- `src/pages/admin.tsx` — inbox UI.
+
+## API (Cloudflare Pages Functions)
+
+All functions expect a D1 binding named `DB`.
+
+### Public endpoint
+
+- `POST /api/intake` → `functions/api/intake.ts`
+  - Validates minimally (requires a valid-looking email)
+  - Inserts into D1 `submissions`
+
+Expected request body (subset):
+
+```json
+{
+  "name": "...",
+  "email": "...",
+  "phone": "...",
+  "location": "...",
+  "timeline": "...",
+  "message": "...",
+  "source": "contact_form",
+  "subject": "Contact form — Real Israel",
+  "pagePath": "/?utm_source=..."
+}
+```
+
+### Admin endpoints
+
+All admin endpoints require `ADMIN_TOKEN` in the Pages environment.
+
+- `GET /api/admin/submissions` → `functions/api/admin/submissions.ts`
+  - Query params: `limit`, `offset`, optional `status=unread|read`, optional `source`, optional `includeDeleted=1`
+- `POST /api/admin/mark-read` → `functions/api/admin/mark-read.ts`
+  - Body: `{ "ids": ["..."] }`
+- `POST /api/admin/delete` → `functions/api/admin/delete.ts`
+  - Body: `{ "ids": ["..."] }`
 
 Auth model:
-- Admin “password” is a shared secret stored as a Cloudflare Pages secret (`ADMIN_TOKEN`).
-- Browser stores the entered value in `localStorage` under `admin_token`.
-- API requests include `Authorization: Bearer <token>`.
 
-## Cloudflare Pages deployment
+- A single shared secret token (think “admin password”), stored in Cloudflare Pages Secrets as `ADMIN_TOKEN`.
+- Browser stores it in `localStorage` and sends `Authorization: Bearer <token>`.
 
-Build settings:
+## Database (Cloudflare D1)
+
+Schema migrations live in `migrations/`:
+
+- `migrations/0001_init.sql` — creates `submissions` table + indexes
+- `migrations/0002_read_delete.sql` — adds `read_at` and `deleted_at` + indexes
+
+Table: `submissions`
+
+- `id` (TEXT, PK)
+- `created_at` (TEXT ISO)
+- `source` (TEXT)
+- `subject` (TEXT nullable)
+- `name`, `email`, `phone`, `location`, `timeline`, `message` (TEXT)
+- `page_path` (TEXT)
+- `user_agent` (TEXT)
+- `read_at` (TEXT nullable)
+- `deleted_at` (TEXT nullable)
+
+Soft delete:
+
+- Admin “delete” sets `deleted_at`; records are excluded from listing by default.
+
+## Cloudflare Pages deployment (client account)
+
+### Build settings
+
 - Build command: `npm run build`
 - Output directory: `dist`
 
-SPA routing:
-- Cloudflare Pages needs [public/_redirects](public/_redirects):
-  - `/* /index.html 200`
+### SPA routing (required)
 
-### Required Cloudflare configuration
+Cloudflare Pages needs the SPA fallback rule in `public/_redirects`:
 
-Environment variable (Pages → Settings → Environment variables):
+```txt
+/* /index 200
+```
+
+### Required Pages configuration
+
+In Cloudflare Pages → your project → Settings:
+
+1) Environment variable (non-secret)
+
 - `VITE_FORMSUBMIT_EMAIL` — recipient inbox for FormSubmit
-  - Because it is `VITE_*`, changing it requires a new build/deploy.
+  - Because it is `VITE_*`, it is baked into the JS bundle. Updating it requires a new deploy.
 
-Secret (Pages → Settings → Environment variables → Secrets):
-- `ADMIN_TOKEN` — shared secret used to access `/api/admin/*` endpoints
+2) Secret
 
-D1 binding (Pages → Settings → Functions → D1 database bindings):
-- binding name: `DB`
+- `ADMIN_TOKEN` — shared secret used for `/api/admin/*`
 
-### D1 database setup
+3) D1 binding
 
-1) Create a D1 database in Cloudflare.
-2) Apply migrations from `migrations/`.
+- Binding name must be: `DB`
 
-Apply migrations (Cloudflare UI):
-- Cloudflare Dashboard → D1 → your database → Console
-- Run `migrations/0001_init.sql`, then `migrations/0002_read_delete.sql`
+### D1 setup + migrations
+
+Option A — Cloudflare Dashboard (simplest):
+
+1) Cloudflare Dashboard → D1 → Create database
+2) Open the database → Console
+3) Run the SQL from:
+   - `migrations/0001_init.sql`
+   - `migrations/0002_read_delete.sql`
+
+Option B — Wrangler CLI (works without a `wrangler.toml`):
+
+```bash
+# create DB (once)
+npx wrangler d1 create <db_name>
+
+# run migrations against the remote DB
+npx wrangler d1 execute <db_name> --remote --file=./migrations/0001_init.sql
+npx wrangler d1 execute <db_name> --remote --file=./migrations/0002_read_delete.sql
+```
 
 ## Troubleshooting
 
-Email not received (but appears in admin):
-- Confirm `VITE_FORMSUBMIT_EMAIL` is set in Cloudflare Pages env vars and that a new deploy ran after setting it.
-- Check browser console for `[FormSubmit]` logs.
-- Check spam/quarantine and FormSubmit activation requirements for the recipient inbox.
+### Contact form says it failed
 
-Admin shows “Unauthorized” / redirects to login:
-- Confirm `ADMIN_TOKEN` secret is set in Cloudflare Pages.
-- Clear stored token (use the “Clear” button on `/admin/login` or clear `localStorage.admin_token`).
+- Check the browser console for `[FormSubmit]` or `[Intake]` logs.
+- If you see “Missing `VITE_FORMSUBMIT_EMAIL`”, the build has no recipient configured.
+- If you see “DB binding missing”, D1 isn’t bound to the Pages project as `DB`.
 
-Large JS bundle warning:
-- Excel export uses `xlsx`, which increases bundle size. This is expected for now.
+### Cloudflare deploy fails with “binding DB … must have a database that already exists”
+
+- Create the D1 database in the same Cloudflare account.
+- Bind it in Pages → Settings → Functions → D1 bindings with name `DB`.
+
+### Admin redirects back to login / Unauthorized
+
+- Ensure Pages secret `ADMIN_TOKEN` exists.
+- Clear `localStorage.admin_token` (or use the “Clear” button on `/admin/login`).
+
+### Large bundle warning
+
+- Admin export uses `xlsx`, which increases bundle size. This is expected.
