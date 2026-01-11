@@ -4,8 +4,4 @@ compatibility_date = "2026-01-05"
 # Cloudflare Pages output folder
 pages_build_output_dir = "dist"
 
-# D1 binding used by Pages Functions (Settings → Functions → D1 bindings)
-[[d1_databases]]
-binding = "DB"
-database_name = "real-israel-db"
-database_id = "94c412a8-c7dc-451c-aac2-e2f2782730ef"
+# Note: D1 bindings are configured in Cloudflare Pages UI (Settings → Functions → D1 bindings)
