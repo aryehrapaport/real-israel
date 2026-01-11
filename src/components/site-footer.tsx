@@ -15,11 +15,8 @@ export function SiteFooter() {
             </div>
 
             <div className="flex items-center justify-start gap-3 md:justify-end">
-              <Button asChild variant="secondary">
-                <Link to="/contact?briefing=1">Download the briefing PDF</Link>
-              </Button>
               <Button asChild>
-                <Link to="/contact">Request a Consultation</Link>
+                <Link to="/#contact">Request a Consultation</Link>
               </Button>
             </div>
           </div>
