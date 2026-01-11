@@ -46,7 +46,6 @@ High level:
   - `migrations/0001_init.sql`
   - `migrations/0002_read_delete.sql`
 - `public/_redirects` — SPA fallback for Cloudflare Pages
-- `wrangler.toml` — local Wrangler + D1 binding config
 
 ## Routes & pages
 
@@ -132,12 +131,9 @@ D1 binding (Pages → Settings → Functions → D1 database bindings):
 1) Create a D1 database in Cloudflare.
 2) Apply migrations from `migrations/`.
 
-Using Wrangler locally:
-- Install: `npm i -D wrangler`
-- Ensure `wrangler.toml` has your `database_id`
-- Apply migrations:
-  - `npx wrangler d1 execute real-israel-db --file migrations/0001_init.sql`
-  - `npx wrangler d1 execute real-israel-db --file migrations/0002_read_delete.sql`
+Apply migrations (Cloudflare UI):
+- Cloudflare Dashboard → D1 → your database → Console
+- Run `migrations/0001_init.sql`, then `migrations/0002_read_delete.sql`
 
 ## Troubleshooting
 
