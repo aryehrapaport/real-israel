@@ -1,40 +1,22 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Clock, Download, ListChecks, Loader2, ShieldCheck } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { Clock, ListChecks, Loader2, ShieldCheck } from "lucide-react";
 import { Container, Section, SectionHeader } from "@/components/section";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { contactIntakeSchema, type ContactIntakeValues } from "@/lib/contact-intake";
 import { submitContactIntake } from "@/lib/formsubmit";
-
-const PDF_PATH = "/resources/what-international-buyers-miss.pdf";
 
 type FormValues = ContactIntakeValues;
 
 export function ContactSection() {
-  const location = useLocation();
   const [submitted, setSubmitted] = useState(false);
-  const [pdfOpen, setPdfOpen] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [pdfSubmitError, setPdfSubmitError] = useState<string | null>(null);
-  const [didAutoOpenBriefing, setDidAutoOpenBriefing] = useState(false);
-
-  const downloadName = useMemo(
-    () => "What International Buyers Miss When They’re Not on the Ground in Israel.pdf",
-    [],
-  );
+  const [honeyPot, setHoneyPot] = useState("");
+  const mountedAtRef = useRef<number>(Date.now());
 
   const form = useForm<FormValues>({
     resolver: zodResolver(contactIntakeSchema),
@@ -49,27 +31,9 @@ export function ContactSection() {
     mode: "onTouched",
   });
 
-  const pdfForm = useForm<FormValues>({
-    resolver: zodResolver(contactIntakeSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
-      location: "",
-      timeline: "",
-      message: "",
-    },
-    mode: "onTouched",
-  });
-
   useEffect(() => {
-    if (didAutoOpenBriefing) return;
-    const params = new URLSearchParams(location.search);
-    if (params.get("briefing") === "1") {
-      setPdfOpen(true);
-      setDidAutoOpenBriefing(true);
-    }
-  }, [didAutoOpenBriefing, location.search]);
+    mountedAtRef.current = Date.now();
+  }, []);
 
   return (
     <Section>
@@ -119,6 +83,19 @@ export function ContactSection() {
                       className="space-y-6"
                       onSubmit={form.handleSubmit(async (values) => {
                         setSubmitError(null);
+
+                        // Lightweight spam protection:
+                        // 1) Honeypot field (should stay empty)
+                        // 2) Minimum time on page before submit
+                        if (honeyPot.trim().length > 0) {
+                          setSubmitError("We could not send your message right now. Please try again.");
+                          return;
+                        }
+                        if (Date.now() - mountedAtRef.current < 1500) {
+                          setSubmitError("Please wait a moment and try again.");
+                          return;
+                        }
+
                         try {
                           await submitContactIntake(values, {
                             subject: "Contact form — Real Israel",
@@ -131,6 +108,18 @@ export function ContactSection() {
                         }
                       })}
                     >
+                      <div className="hidden" aria-hidden="true">
+                        <label htmlFor="company">Company</label>
+                        <input
+                          id="company"
+                          name="company"
+                          tabIndex={-1}
+                          autoComplete="off"
+                          value={honeyPot}
+                          onChange={(e) => setHoneyPot(e.target.value)}
+                        />
+                      </div>
+
                       <div className="grid gap-4 md:grid-cols-2">
                         <FormField
                           control={form.control}
@@ -280,187 +269,6 @@ export function ContactSection() {
                     We aim for calm, client-aligned reporting. No commissions, no inflated claims.
                   </p>
                 </div>
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-border/70 bg-card/60 p-6 sm:p-8">
-              <p className="text-sm font-medium">Briefing PDF</p>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                A short checklist for international buyers: what gets missed when no one is on the ground.
-              </p>
-
-              {pdfSubmitError ? (
-                <div className="mt-4 rounded-xl border border-destructive/30 bg-destructive/5 p-4">
-                  <p className="text-sm text-destructive">{pdfSubmitError}</p>
-                </div>
-              ) : null}
-
-              <div className="mt-5">
-                <Dialog open={pdfOpen} onOpenChange={setPdfOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="secondary" className="w-full">
-                      <Download className="mr-2 h-4 w-4" />
-                      Download PDF
-                    </Button>
-                  </DialogTrigger>
-
-                  <DialogContent className="sm:max-w-lg">
-                    <DialogHeader>
-                      <DialogTitle>Request the briefing PDF</DialogTitle>
-                      <DialogDescription>
-                        Leave your details so we can follow up if you want to continue. Then download.
-                      </DialogDescription>
-                    </DialogHeader>
-
-                    {pdfSubmitError ? (
-                      <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4">
-                        <p className="text-sm text-destructive">{pdfSubmitError}</p>
-                      </div>
-                    ) : null}
-
-                    <Form {...pdfForm}>
-                      <form
-                        className="space-y-6"
-                        onSubmit={pdfForm.handleSubmit(async (values) => {
-                          setPdfSubmitError(null);
-                          try {
-                            await submitContactIntake(values, {
-                              subject: "Briefing PDF request — Real Israel",
-                              source: "briefing_pdf",
-                            });
-
-                            const a = document.createElement("a");
-                            a.href = PDF_PATH;
-                            a.download = downloadName;
-                            document.body.appendChild(a);
-                            a.click();
-                            a.remove();
-
-                            setPdfOpen(false);
-                            pdfForm.reset();
-                          } catch (err) {
-                            console.error("[Contact] Briefing submission failed", err);
-                            setPdfSubmitError("We could not submit this request right now. Please try again.");
-                          }
-                        })}
-                      >
-                        <div className="grid gap-4 md:grid-cols-2">
-                          <FormField
-                            control={pdfForm.control}
-                            name="name"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Name</FormLabel>
-                                <FormControl>
-                                  <Input autoComplete="name" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={pdfForm.control}
-                            name="email"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Email</FormLabel>
-                                <FormControl>
-                                  <Input type="email" autoComplete="email" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-
-                        <div className="grid gap-4 md:grid-cols-3">
-                          <FormField
-                            control={pdfForm.control}
-                            name="phone"
-                            render={({ field }) => (
-                              <FormItem className="md:col-span-1">
-                                <FormLabel>Phone (optional)</FormLabel>
-                                <FormControl>
-                                  <Input autoComplete="tel" inputMode="tel" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={pdfForm.control}
-                            name="location"
-                            render={({ field }) => (
-                              <FormItem className="md:col-span-1">
-                                <FormLabel>Location (optional)</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="City or neighborhood" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={pdfForm.control}
-                            name="timeline"
-                            render={({ field }) => (
-                              <FormItem className="md:col-span-1">
-                                <FormLabel>Timeline (optional)</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Weeks or months" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-
-                        <FormField
-                          control={pdfForm.control}
-                          name="message"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Message</FormLabel>
-                              <FormControl>
-                                <Textarea
-                                  rows={6}
-                                  placeholder="Stage, location, timeline, and what you want verified."
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <div className="flex items-center justify-end gap-2">
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            onClick={() => setPdfOpen(false)}
-                            disabled={pdfForm.formState.isSubmitting}
-                          >
-                            Cancel
-                          </Button>
-                          <Button
-                            type="submit"
-                            disabled={pdfForm.formState.isSubmitting}
-                            aria-busy={pdfForm.formState.isSubmitting}
-                          >
-                            {pdfForm.formState.isSubmitting ? (
-                              <>
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                                Sending
-                              </>
-                            ) : (
-                              "Download briefing PDF"
-                            )}
-                          </Button>
-                        </div>
-                      </form>
-                    </Form>
-                  </DialogContent>
-                </Dialog>
               </div>
             </div>
           </div>

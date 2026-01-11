@@ -17,7 +17,7 @@ type Theme = "light" | "dark";
 function getInitialTheme(): Theme {
   const stored = localStorage.getItem("theme");
   if (stored === "light" || stored === "dark") return stored;
-  return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  return "light";
 }
 
 export function SiteHeader() {
@@ -82,10 +82,8 @@ export function SiteHeader() {
     () =>
       [
         { to: "/#home", label: "Home" },
-        { to: "/#problem", label: "Beware" },
         { to: "/#why-us", label: "Why Choose Us" },
         { to: "/#services", label: "Services" },
-        { to: "/#premium", label: "Premium" },
         { to: "/#contact", label: "Contact" },
       ] as const,
     [],
