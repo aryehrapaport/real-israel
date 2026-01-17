@@ -100,7 +100,7 @@ export function SiteHeader() {
             className="text-sm font-semibold tracking-tight text-foreground"
             aria-label="Home"
           >
-            Real Israel
+            BridgePoint Israel
           </Link>
 
           <nav

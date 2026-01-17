@@ -1,4 +1,4 @@
-# Real Israel — Developer handoff
+# BridgePoint Israel — Developer handoff
 
 This repo contains a one-page marketing site and a lightweight admin inbox for contact submissions.
 
@@ -124,7 +124,7 @@ Expected request body (subset):
   "timeline": "...",
   "message": "...",
   "source": "contact_form",
-  "subject": "Contact form — Real Israel",
+  "subject": "Contact form — BridgePoint Israel",
   "pagePath": "/?utm_source=..."
 }
 ```

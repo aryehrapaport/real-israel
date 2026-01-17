@@ -7,7 +7,7 @@ export function WhyPresencePage() {
   return (
     <>
       <Seo
-        title="Real Israel | Why Presence Matters"
+        title="BridgePoint Israel | Why Presence Matters"
         description="Presence prevents drift: miscommunication, delays, and avoidable cost when projects are managed remotely." 
       />
 

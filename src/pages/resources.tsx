@@ -51,7 +51,7 @@ export function ResourcesPage() {
   return (
     <>
       <Seo
-        title="Real Israel | Resources"
+        title="BridgePoint Israel | Resources"
         description="A short PDF briefing for international buyers and families: what gets missed when no one is on the ground in Israel." 
       />
 
@@ -103,7 +103,7 @@ export function ResourcesPage() {
                             setError(null);
                             try {
                               await submitContactIntake(values, {
-                                subject: "Briefing PDF request — Real Israel",
+                                subject: "Briefing PDF request — BridgePoint Israel",
                                 source: "briefing_pdf",
                               });
 

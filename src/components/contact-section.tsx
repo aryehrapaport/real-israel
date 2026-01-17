@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Clock, ListChecks, Loader2, ShieldCheck } from "lucide-react";
@@ -16,7 +16,7 @@ export function ContactSection() {
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [honeyPot, setHoneyPot] = useState("");
-  const mountedAtRef = useRef<number>(Date.now());
+  const [readyToSubmit, setReadyToSubmit] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(contactIntakeSchema),
@@ -32,7 +32,11 @@ export function ContactSection() {
   });
 
   useEffect(() => {
-    mountedAtRef.current = Date.now();
+    const id = window.setTimeout(() => {
+      setReadyToSubmit(true);
+    }, 1500);
+
+    return () => window.clearTimeout(id);
   }, []);
 
   return (
@@ -91,14 +95,14 @@ export function ContactSection() {
                           setSubmitError("We could not send your message right now. Please try again.");
                           return;
                         }
-                        if (Date.now() - mountedAtRef.current < 1500) {
+                        if (!readyToSubmit) {
                           setSubmitError("Please wait a moment and try again.");
                           return;
                         }
 
                         try {
                           await submitContactIntake(values, {
-                            subject: "Contact form — Real Israel",
+                            subject: "Contact form — BridgePoint Israel",
                             source: "contact_form",
                           });
                           setSubmitted(true);

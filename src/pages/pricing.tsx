@@ -6,7 +6,7 @@ export function PricingPage() {
   return (
     <>
       <Seo
-        title="Real Israel | Pricing"
+        title="BridgePoint Israel | Pricing"
         description="Retainer based engagement for presence and coordination in Israel. Designed for ongoing oversight and clear reporting." 
       />
 

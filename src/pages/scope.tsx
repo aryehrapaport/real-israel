@@ -5,7 +5,7 @@ export function ScopePage() {
   return (
     <>
       <Seo
-        title="Real Israel | Scope"
+        title="BridgePoint Israel | Scope"
         description="Clear expectations: what this presence based coordination service is, and what it is not." 
       />
 

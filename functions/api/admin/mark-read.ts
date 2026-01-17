@@ -17,21 +17,36 @@ function getToken(req: Request) {
   return auth.startsWith("Bearer ") ? auth.slice("Bearer ".length) : "";
 }
 
-export const onRequestPost = async (ctx: any) => {
+type Ctx = {
+  request: Request;
+  env?: {
+    ADMIN_TOKEN?: string;
+    DB?: {
+      prepare: (sql: string) => {
+        bind: (...args: unknown[]) => { run: () => Promise<{ meta?: { changes?: number } }> };
+      };
+    };
+  };
+};
+
+export const onRequestPost = async (ctx: Ctx) => {
   const expected = ctx.env?.ADMIN_TOKEN;
   if (!expected) return unauthorized();
 
   const token = getToken(ctx.request);
   if (!token || token !== expected) return unauthorized();
 
-  let body: any;
+  let body: unknown;
   try {
     body = await ctx.request.json();
   } catch {
     return json({ ok: false, error: "Invalid JSON" }, { status: 400 });
   }
 
-  const ids = Array.isArray(body?.ids) ? body.ids.filter((x: any) => typeof x === "string") : [];
+  const ids =
+    body && typeof body === "object" && Array.isArray((body as { ids?: unknown }).ids)
+      ? ((body as { ids: unknown[] }).ids).filter((x) => typeof x === "string")
+      : [];
   if (ids.length === 0) {
     return json({ ok: false, error: "No ids provided" }, { status: 400 });
   }

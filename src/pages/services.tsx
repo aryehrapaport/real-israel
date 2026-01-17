@@ -57,7 +57,7 @@ export function ServicesPage() {
   return (
     <>
       <Seo
-        title="Real Israel | Services"
+        title="BridgePoint Israel | Services"
         description="Presence based coordination services in Israel: observation, reporting, vendor qualification, logistics, and purchase support." 
       />
 

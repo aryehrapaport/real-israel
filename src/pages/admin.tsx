@@ -37,8 +37,8 @@ type Submission = {
 
 function toCsvValue(value: unknown) {
   const s = value == null ? "" : String(value);
-  const needsQuotes = /[\n\r,\"]/g.test(s);
-  const escaped = s.replace(/\"/g, '""');
+  const needsQuotes = /[\n\r,"]/g.test(s);
+  const escaped = s.replace(/"/g, '""');
   return needsQuotes ? `"${escaped}"` : escaped;
 }
 
@@ -47,7 +47,7 @@ function downloadCsv(filename: string, rows: Record<string, unknown>[]) {
   const headers = Object.keys(rows[0] ?? {});
   const lines = [headers.map(toCsvValue).join(",")];
   for (const row of rows) {
-    lines.push(headers.map((h) => toCsvValue((row as any)[h])).join(","));
+    lines.push(headers.map((h) => toCsvValue(row[h])).join(","));
   }
 
   const csv = "\ufeff" + lines.join("\n");
@@ -317,7 +317,7 @@ export function AdminPage() {
 
   return (
     <>
-      <Seo title="Admin | Real Israel" description="Submissions inbox." />
+      <Seo title="Admin | BridgePoint Israel" description="Submissions inbox." />
 
       <Section>
         <Container className="py-14 sm:py-18">
@@ -536,7 +536,7 @@ export function AdminPage() {
                       <div className="grid grid-cols-[40px_120px_1fr_110px_156px] gap-3 border-b border-border/70 bg-background/30 px-4 py-3 text-xs text-muted-foreground">
                         <div className="flex items-center justify-center">
                           <Checkbox
-                            checked={headerCheckboxState as any}
+                            checked={headerCheckboxState}
                             onCheckedChange={(v) => toggleAll(Boolean(v))}
                             aria-label="Select all"
                           />
@@ -558,10 +558,10 @@ export function AdminPage() {
                             : "";
 
                           const emailSubject = encodeURIComponent(
-                            s.subject || `Re: ${s.source} — Real Israel`,
+                            s.subject || `Re: ${s.source} — BridgePoint Israel`,
                           );
                           const emailBody = encodeURIComponent(
-                            `Hi${s.name ? ` ${s.name}` : ""},\n\nThanks for reaching out.\n\n— Real Israel\n\n---\nSubmitted: ${new Date(
+                            `Hi${s.name ? ` ${s.name}` : ""},\n\nThanks for reaching out.\n\n— BridgePoint Israel\n\n---\nSubmitted: ${new Date(
                               s.created_at,
                             ).toLocaleString()}\nSource: ${s.source}\nPage: ${s.page_path ?? ""}\n\nMessage:\n${s.message ?? ""}\n`,
                           );
@@ -683,10 +683,10 @@ export function AdminPage() {
                         const checked = Boolean(selected[s.id]);
                         const isUnread = !s.read_at;
                         const emailSubject = encodeURIComponent(
-                          s.subject || `Re: ${s.source} — Real Israel`,
+                          s.subject || `Re: ${s.source} — BridgePoint Israel`,
                         );
                         const emailBody = encodeURIComponent(
-                          `Hi${s.name ? ` ${s.name}` : ""},\n\nThanks for reaching out.\n\n— Real Israel\n\n---\nSubmitted: ${new Date(
+                          `Hi${s.name ? ` ${s.name}` : ""},\n\nThanks for reaching out.\n\n— BridgePoint Israel\n\n---\nSubmitted: ${new Date(
                             s.created_at,
                           ).toLocaleString()}\nSource: ${s.source}\nPage: ${s.page_path ?? ""}\n\nMessage:\n${s.message ?? ""}\n`,
                         );

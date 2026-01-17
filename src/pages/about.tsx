@@ -9,7 +9,7 @@ export function AboutPage() {
   return (
     <>
       <Seo
-        title="Real Israel | About"
+        title="BridgePoint Israel | About"
         description="A presence based coordination service in Israel built for international clients who value discretion, neutrality, and clear reporting." 
       />
 

@@ -12,6 +12,13 @@ export function AdminLoginPage() {
   const [token, setToken] = useState(() => localStorage.getItem("admin_token") ?? "");
   const [error, setError] = useState<string | null>(null);
 
+  const urlError = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get("reason") === "unauthorized"
+      ? "Session expired or token is invalid. Please sign in again."
+      : null;
+  }, [location.search]);
+
   const canSubmit = useMemo(() => token.trim().length > 10, [token]);
 
   useEffect(() => {
@@ -21,16 +28,9 @@ export function AdminLoginPage() {
     }
   }, [navigate]);
 
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    if (params.get("reason") === "unauthorized") {
-      setError("Session expired or token is invalid. Please sign in again.");
-    }
-  }, [location.search]);
-
   return (
     <>
-      <Seo title="Admin Login | Real Israel" description="Sign in to the admin inbox." />
+      <Seo title="Admin Login | BridgePoint Israel" description="Sign in to the admin inbox." />
 
       <Section>
         <Container className="py-14 sm:py-18">
@@ -44,9 +44,9 @@ export function AdminLoginPage() {
             <div className="lg:col-span-6">
               <Card className="border-border/70 bg-card/60">
                 <CardContent className="space-y-4 p-6 sm:p-8">
-                  {error ? (
+                  {(error ?? urlError) ? (
                     <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4">
-                      <p className="text-sm text-destructive">{error}</p>
+                      <p className="text-sm text-destructive">{error ?? urlError}</p>
                     </div>
                   ) : null}
 

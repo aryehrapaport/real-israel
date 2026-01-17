@@ -24,7 +24,7 @@ export function SiteFooter() {
           <Divider />
 
           <div className="flex flex-col gap-2 text-xs text-muted-foreground md:flex-row md:items-center md:justify-between">
-            <p>© {new Date().getFullYear()} Real Israel</p>
+            <p>© {new Date().getFullYear()} BridgePoint Israel</p>
             <p>Privacy-first communication. No spam. No public client list.</p>
           </div>
         </Container>

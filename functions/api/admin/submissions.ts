@@ -12,7 +12,22 @@ function unauthorized() {
   return json({ ok: false, error: "Unauthorized" }, { status: 401 });
 }
 
-export const onRequestGet = async (ctx: any) => {
+type Ctx = {
+  request: Request;
+  env?: {
+    ADMIN_TOKEN?: string;
+    DB?: {
+      prepare: (sql: string) => {
+        bind: (...args: unknown[]) => {
+          first: () => Promise<unknown>;
+          all: () => Promise<{ results?: unknown[] }>;
+        };
+      };
+    };
+  };
+};
+
+export const onRequestGet = async (ctx: Ctx) => {
   const expected = ctx.env?.ADMIN_TOKEN;
   if (!expected) return unauthorized();
 
@@ -65,7 +80,10 @@ export const onRequestGet = async (ctx: any) => {
     .bind(...binds)
     .first();
 
-  const total = typeof countResult?.total === "number" ? countResult.total : 0;
+  const total =
+    countResult && typeof countResult === "object" && typeof (countResult as { total?: unknown }).total === "number"
+      ? (countResult as { total: number }).total
+      : 0;
 
   const result = await statement.all();
   return json({ ok: true, items: result?.results ?? [], total, limit, offset });
