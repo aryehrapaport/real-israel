@@ -1,6 +1,5 @@
 import {
   ArrowRight,
-  BadgeCheck,
   CheckCircle2,
   ClipboardCheck,
   Globe,
@@ -18,13 +17,6 @@ import { ContactSection } from "@/components/contact-section";
 
 const servicesIncluded = [
   {
-    title: "Finding apartment",
-    items: ["Viewing apartment", "Engaging with brokers", "Negotiation"],
-    imageSrc:
-      "https://images.unsplash.com/photo-1501183638710-841dd1904471?auto=format&fit=crop&w=1600&q=80",
-    imageAlt: "Apartment interior",
-  },
-  {
     title: "Purchasing / Negotiating apartment",
     items: ["Lawyers", "Accountants", "Payment coordination", "Israeli tax payments"],
     imageSrc:
@@ -32,17 +24,7 @@ const servicesIncluded = [
     imageAlt: "Signing documents",
   },
   {
-    title: "Contractor review & qualification",
-    items: [
-      "Measurers, designers, contractors, electricians, plumbers",
-      "Licensed, insured",
-    ],
-    imageSrc:
-      "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=1600&q=80",
-    imageAlt: "Contractor tools",
-  },
-  {
-    title: "Project Review & Coordination",
+    title: "Project Managment & Coordination",
     items: [
       "Building requirements",
       "Inspector reviews",
@@ -64,10 +46,11 @@ const servicesIncluded = [
 ] as const;
 
 const whyChooseUs = [
-  "Client aligned",
-  "Eyes & ears on the ground, speak Hebrew",
-  "We work with qualified suppliers and contractors",
-  "One point person of accountability",
+  "Critical details get lost across time zones and translation.",
+  "Without local knowledge, it’s difficult to know who is reliable, available, and fairly priced.",
+  "Quotes are hard to compare remotely, leading to higher prices or unclear scopes of work.",
+  "From abroad, it’s difficult to confirm that work is completed correctly before releasing funds.",
+  "Without someone on site, issues surface late and cost a lot more to fix.",
 ] as const;
 
 export function HomePage() {
@@ -99,17 +82,9 @@ export function HomePage() {
             animate="show"
           >
             <div className="order-2 lg:order-1 lg:col-span-7">
-              <motion.div variants={heroItem}>
-                <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/60 px-4 py-2">
-                  <span className="text-xs font-medium tracking-[0.18em] text-muted-foreground">
-                    PRESENCE BASED COORDINATION
-                  </span>
-                </div>
-              </motion.div>
-
               <motion.h1
                 variants={heroItem}
-                className="mt-5 text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl"
+                className="text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl"
               >
                 Project management services for real estate in Israel
               </motion.h1>
@@ -118,8 +93,9 @@ export function HomePage() {
                 variants={heroItem}
                 className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg"
               >
-                When you cannot be present, uncertainty gets expensive. We help you stay grounded in
-                reality with on the ground checks, clear reporting, and calm follow through.
+                Building a home from abroad can be risky, expensive, and frustrating. BridgePoint is
+                your local partner, ensuring your home is built according to plan in an efficient,
+                transparent, and cost-effective way.
               </motion.p>
 
               <motion.div
@@ -179,16 +155,16 @@ export function HomePage() {
         <Section>
           <Container>
             <SectionHeader
-              eyebrow="Project management services for real estate in Israel"
-              title="Beware of costly mistakes, delays and stress"
-              description="Help international buyers build a home in Israel."
+              eyebrow=""
+              title="Your dream home shouldn’t become a long-distance headache."
+              description="Avoid the risks of building from abroad."
             />
 
             <div className="mt-10 grid items-center gap-10 lg:grid-cols-12">
               <div className="lg:col-span-7">
                 <div className="rounded-2xl border border-border/70 bg-card/60 p-6 sm:p-8">
                   <p className="text-lg font-semibold tracking-tight sm:text-xl">
-                    Long distance projects fail quietly.
+                    Beware of costly mistakes, delays and stress
                   </p>
                   <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
                     The biggest risks are not dramatic. They are small gaps that compound: unclear responsibility,
@@ -233,7 +209,7 @@ export function HomePage() {
                       <Link to="/#contact">Talk to us</Link>
                     </Button>
                     <Button asChild variant="outline">
-                      <Link to="/#premium">What “premium” means</Link>
+                      <Link to="/#services">See what’s included</Link>
                     </Button>
                   </div>
                 </div>
@@ -272,9 +248,9 @@ export function HomePage() {
         <Section>
           <Container>
             <SectionHeader
-              eyebrow="Why choose us"
+              eyebrow=""
               title="Why Choose Us"
-              description="Client aligned coordination with a single accountable point person on the ground."
+              description="We are your eyes and ears on the ground—representing your interests every step of the way."
             />
 
             <div className="mt-10 grid items-center gap-10 lg:grid-cols-12">
@@ -295,7 +271,7 @@ export function HomePage() {
 
               <div className="lg:col-span-7">
                 <div className="rounded-2xl border border-border/70 bg-card/60 p-6 sm:p-8">
-                  <p className="text-lg font-semibold tracking-tight sm:text-xl">A calm partner on the ground.</p>
+                  <p className="text-lg font-semibold tracking-tight sm:text-xl">Your partner on the ground</p>
                   <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
                     One point of accountability, with local context and clear communication—so decisions stay grounded in reality.
                   </p>
@@ -308,6 +284,10 @@ export function HomePage() {
                       </li>
                     ))}
                   </ul>
+
+                  <p className="mt-6 text-sm leading-relaxed text-muted-foreground sm:text-base">
+                    That’s why you need a trusted partner on the ground—protecting your interests every step of the way.
+                  </p>
 
                   <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
                     <Button asChild variant="premium">
@@ -377,93 +357,6 @@ export function HomePage() {
               <Button asChild variant="outline">
                 <Link to="/#why-us">Why choose us</Link>
               </Button>
-            </div>
-          </Container>
-        </Section>
-      </div>
-
-      <Divider />
-
-      <div id="premium">
-        <Section>
-          <Container>
-            <SectionHeader
-              eyebrow="Premium Service"
-              title="Premium means fewer surprises"
-              description="It’s not about doing more work — it’s about having your eyes and ears on the ground and preventing very expensive mistakes and long delays."
-            />
-
-            <div className="mt-10 grid items-center gap-10 lg:grid-cols-12">
-              <div className="lg:col-span-7">
-                <div className="rounded-2xl border border-border/70 bg-card/60 p-6 sm:p-10">
-                  <p className="text-balance text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
-                    “We provide a premium service. Its not about doing more work — it’s about having your eyes
-                    and ears on the ground and preventing very expensive mistakes and long delays.”
-                  </p>
-
-                  <div className="mt-8 grid gap-4 sm:grid-cols-2">
-                    {[
-                      {
-                        icon: ShieldCheck,
-                        title: "Client-first reporting",
-                        body: "Neutral updates you can trust and act on.",
-                      },
-                      {
-                        icon: Target,
-                        title: "Decision clarity",
-                        body: "Short prompts that reduce back-and-forth.",
-                      },
-                      {
-                        icon: BadgeCheck,
-                        title: "Verified follow-through",
-                        body: "Confirm what happened — not what was promised.",
-                      },
-                      {
-                        icon: ClipboardCheck,
-                        title: "Structured coordination",
-                        body: "Keep people aligned across time zones.",
-                      },
-                    ].map((item) => (
-                      <div
-                        key={item.title}
-                        className="rounded-xl border border-border/70 bg-background/60 p-4"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/70 bg-background/60">
-                            <item.icon className="h-4 w-4 text-primary" />
-                          </div>
-                          <p className="text-sm font-semibold text-foreground">{item.title}</p>
-                        </div>
-                        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-                    <Button asChild variant="premium">
-                      <Link to="/#contact">Request a consultation</Link>
-                    </Button>
-                    <Button asChild variant="outline">
-                      <Link to="/#services">See what’s included</Link>
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="lg:col-span-5">
-                <div className="relative overflow-hidden rounded-2xl border border-border/70 bg-card/60 shadow-sm shadow-black/5">
-                  <img
-                    src="https://images.pexels.com/photos/5584052/pexels-photo-5584052.jpeg?auto=compress&cs=tinysrgb&w=1600&fit=crop"
-                    alt="On site documentation"
-                    className="h-full w-full object-cover"
-                    loading="lazy"
-                    decoding="async"
-                    referrerPolicy="no-referrer"
-                    crossOrigin="anonymous"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/75 via-background/15 to-transparent" />
-                </div>
-              </div>
             </div>
           </Container>
         </Section>
