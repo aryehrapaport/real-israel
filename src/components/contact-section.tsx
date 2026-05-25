@@ -41,7 +41,7 @@ export function ContactSection() {
 
   return (
     <Section>
-      <Container className="py-14 sm:py-18">
+      <Container>
         <SectionHeader
           eyebrow="Contact"
           title="Contact"

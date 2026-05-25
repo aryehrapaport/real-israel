@@ -33,7 +33,7 @@ export function AdminLoginPage() {
       <Seo title="Admin Login | BridgePoint Israel" description="Sign in to the admin inbox." />
 
       <Section>
-        <Container className="py-14 sm:py-18">
+        <Container>
           <SectionHeader
             eyebrow="Admin"
             title="Sign in"

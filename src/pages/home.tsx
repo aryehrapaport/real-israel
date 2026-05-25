@@ -74,7 +74,7 @@ export function HomePage() {
       />
 
       <section id="home" className="relative overflow-hidden">
-        <Container className="py-14 sm:py-18 lg:py-24">
+        <Container className="py-8 sm:py-12 lg:py-16">
           <motion.div
             className="grid items-start gap-10 lg:grid-cols-12"
             variants={heroContainer}

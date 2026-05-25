@@ -6,7 +6,7 @@ export function Container({ children, className }: PropsWithChildren<{ className
 }
 
 export function Section({ children, className }: PropsWithChildren<{ className?: string }>) {
-  return <section className={cn("relative py-14 sm:py-18 lg:py-24", className)}>{children}</section>;
+  return <section className={cn("relative py-8 sm:py-12 lg:py-16", className)}>{children}</section>;
 }
 
 export function SectionHeader({

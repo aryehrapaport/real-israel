@@ -320,7 +320,7 @@ export function AdminPage() {
       <Seo title="Admin | BridgePoint Israel" description="Submissions inbox." />
 
       <Section>
-        <Container className="py-14 sm:py-18">
+        <Container>
           <div className="flex flex-wrap items-start justify-between gap-4">
             <SectionHeader
               eyebrow="Admin"

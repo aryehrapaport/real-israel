@@ -13,7 +13,7 @@ export function WhyPresencePage() {
 
       <section className="relative overflow-hidden">
         <div className="absolute inset-x-0 top-0 h-56 bg-gradient-to-b from-muted/45 to-transparent" />
-        <Container className="py-14 sm:py-18 lg:py-24">
+        <Container className="py-8 sm:py-12 lg:py-16">
           <div className="grid items-start gap-10 lg:grid-cols-12">
             <div className="order-2 lg:order-1 lg:col-span-7">
               <p className="text-sm font-medium tracking-wide text-muted-foreground">Why presence matters</p>
