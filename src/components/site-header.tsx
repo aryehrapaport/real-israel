@@ -78,26 +78,28 @@ export function SiteHeader() {
     localStorage.setItem("theme", theme);
   }, [theme]);
 
+  const isEditorial = location.pathname.startsWith("/editorial");
+
   const nav = useMemo(
     () =>
       [
-        { to: "/#home", label: "Home" },
-        { to: "/#why-us", label: "Why Choose Us" },
-        { to: "/#services", label: "Services" },
-        { to: "/#contact", label: "Contact" },
+        { to: isEditorial ? "/editorial#home" : "/#home", label: "Home" },
+        { to: isEditorial ? "/editorial#why-us" : "/#why-us", label: "Why Choose Us" },
+        { to: isEditorial ? "/editorial#services" : "/#services", label: "Services" },
+        { to: isEditorial ? "/editorial#contact" : "/#contact", label: "Contact" },
       ] as const,
-    [],
+    [isEditorial],
   );
 
-  const activeHash = location.pathname === "/" ? location.hash || "#home" : "";
+  const activeHash = location.pathname === (isEditorial ? "/editorial" : "/") ? location.hash || "#home" : "";
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-border/60 bg-background/70 backdrop-blur">
       <div className="container flex h-16 items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <Link
-            to="/#home"
-            className="text-sm font-semibold tracking-tight text-foreground"
+            to={isEditorial ? "/editorial#home" : "/#home"}
+            className="text-sm font-semibold tracking-tight text-foreground font-serif"
             aria-label="Home"
           >
             BridgePoint Israel
@@ -207,7 +209,7 @@ export function SiteHeader() {
                     className="w-full"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <Link to="/#contact" state={{ from: location.pathname }}>
+                    <Link to={isEditorial ? "/editorial#contact" : "/#contact"} state={{ from: location.pathname }}>
                       Request a Consultation
                     </Link>
                   </Button>
@@ -221,7 +223,7 @@ export function SiteHeader() {
           </div>
 
           <Button asChild variant="premium" className="hidden md:inline-flex">
-            <Link to="/#contact" state={{ from: location.pathname }}>
+            <Link to={isEditorial ? "/editorial#contact" : "/#contact"} state={{ from: location.pathname }}>
               Request a Consultation
             </Link>
           </Button>

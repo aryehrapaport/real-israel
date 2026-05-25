@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -105,5 +107,69 @@
 
   p {
     @apply leading-relaxed;
+  }
+
+  .theme-editorial {
+    --background: 34 25% 97%; /* Warm Sand */
+    --foreground: 20 15% 15%; /* Deep Charcoal */
+
+    --card: 34 25% 100%;
+    --card-foreground: 20 15% 15%;
+
+    --popover: 34 25% 100%;
+    --popover-foreground: 20 15% 15%;
+
+    --primary: 24 35% 25%; /* Deep bronze/earth */
+    --primary-foreground: 34 25% 97%;
+
+    --secondary: 34 15% 90%;
+    --secondary-foreground: 24 35% 25%;
+
+    --muted: 34 15% 90%;
+    --muted-foreground: 20 10% 45%;
+
+    --accent: 34 15% 90%;
+    --accent-foreground: 20 15% 15%;
+
+    --border: 34 15% 85%;
+    --input: 34 15% 85%;
+    --ring: 24 35% 25%;
+    
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  .dark .theme-editorial,
+  .theme-editorial.dark {
+    --background: 20 15% 8%; /* Deep Charcoal-Black */
+    --foreground: 34 20% 90%; /* Soft sand white */
+
+    --card: 20 15% 10%;
+    --card-foreground: 34 20% 90%;
+
+    --popover: 20 15% 10%;
+    --popover-foreground: 34 20% 90%;
+
+    --primary: 34 40% 70%; /* Warm golden sand/bronze */
+    --primary-foreground: 20 15% 8%;
+
+    --secondary: 20 12% 14%;
+    --secondary-foreground: 34 20% 90%;
+
+    --muted: 20 12% 14%;
+    --muted-foreground: 34 10% 68%;
+
+    --accent: 20 12% 14%;
+    --accent-foreground: 34 20% 90%;
+
+    --border: 20 12% 18%;
+    --input: 20 12% 18%;
+    --ring: 34 40% 70%;
+  }
+
+  .theme-editorial h1,
+  .theme-editorial h2,
+  .theme-editorial h3,
+  .theme-editorial .font-serif {
+    font-family: 'Playfair Display', serif;
   }
 }

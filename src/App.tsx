@@ -8,7 +8,9 @@ import { SiteBackground } from "@/components/site-background";
 import { AdminLoginPage } from "@/pages/admin-login";
 import { AdminPage } from "@/pages/admin";
 import { HomePage } from "@/pages/home";
+import { HomePageEditorial } from "@/pages/home-editorial";
 import { PageTransition } from "@/components/page-transition";
+import { cn } from "@/lib/utils";
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -21,6 +23,14 @@ function AnimatedRoutes() {
           element={
             <PageTransition>
               <HomePage />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/editorial"
+          element={
+            <PageTransition>
+              <HomePageEditorial />
             </PageTransition>
           }
         />
@@ -61,21 +71,30 @@ function AnimatedRoutes() {
   );
 }
 
+function MainAppLayout() {
+  const location = useLocation();
+  const isEditorial = location.pathname.startsWith("/editorial");
+
+  return (
+    <div className={cn("relative isolate min-h-dvh bg-background transition-colors duration-300", isEditorial ? "theme-editorial" : "")}>
+      <SiteBackground />
+      <div className="relative z-10">
+        <SiteHeader />
+        <main className="pt-16">
+          <AnimatedRoutes />
+        </main>
+        <SiteFooter />
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
       <ScrollToHash />
-      <div className="relative isolate min-h-dvh bg-background">
-        <SiteBackground />
-        <div className="relative z-10">
-          <SiteHeader />
-          <main className="pt-16">
-            <AnimatedRoutes />
-          </main>
-          <SiteFooter />
-        </div>
-      </div>
+      <MainAppLayout />
     </BrowserRouter>
   );
 }

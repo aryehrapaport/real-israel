@@ -1,8 +1,11 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Container, Divider, Section } from "@/components/section";
 import { Button } from "@/components/ui/button";
 
 export function SiteFooter() {
+  const location = useLocation();
+  const isEditorial = location.pathname.startsWith("/editorial");
+
   return (
     <footer className="border-t border-border/60">
       <Section className="py-12">
@@ -16,7 +19,7 @@ export function SiteFooter() {
 
             <div className="flex items-center justify-start gap-3 md:justify-end">
               <Button asChild>
-                <Link to="/#contact">Request a Consultation</Link>
+                <Link to={isEditorial ? "/editorial#contact" : "/#contact"}>Request a Consultation</Link>
               </Button>
             </div>
           </div>
