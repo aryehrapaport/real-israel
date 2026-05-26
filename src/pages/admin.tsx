@@ -5,13 +5,11 @@ import {
   ChevronRight,
   Download,
   FileSpreadsheet,
-  LogOut,
   Mail,
   Search,
   Trash2,
 } from "lucide-react";
 import * as XLSX from "xlsx";
-import { useNavigate } from "react-router-dom";
 import { Seo } from "@/components/seo";
 import { Container, Section, SectionHeader } from "@/components/section";
 import { Button } from "@/components/ui/button";
@@ -83,8 +81,6 @@ function downloadXlsx(filename: string, rows: Record<string, unknown>[]) {
 }
 
 export function AdminPage() {
-  const navigate = useNavigate();
-  const [token, setToken] = useState(() => localStorage.getItem("admin_token") ?? "");
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<Submission[]>([]);
   const [total, setTotal] = useState(0);
@@ -97,18 +93,9 @@ export function AdminPage() {
   const [statusFilter, setStatusFilter] = useState<"all" | "unread" | "read">("all");
   const [query, setQuery] = useState("");
 
-  const authed = useMemo(() => token.trim().length > 10, [token]);
-
   useEffect(() => {
-    const existing = localStorage.getItem("admin_token") ?? "";
-    if (!existing || existing.trim().length <= 10) {
-      navigate("/admin/login", { replace: true });
-      return;
-    }
-
-    setToken(existing);
-    load(1, { token: existing, statusFilter: "all" });
-  }, [navigate]);
+    load(1, { statusFilter: "all" });
+  }, []);
 
   const selectedIds = useMemo(
     () => Object.entries(selected).filter(([, v]) => v).map(([k]) => k),
@@ -175,7 +162,6 @@ export function AdminPage() {
   async function load(
     nextPage = 1,
     options?: {
-      token?: string;
       statusFilter?: "all" | "unread" | "read";
     },
   ) {
@@ -183,7 +169,6 @@ export function AdminPage() {
     setError(null);
 
     try {
-      const activeToken = options?.token ?? token;
       const activeStatusFilter = options?.statusFilter ?? statusFilter;
       const offset = Math.max(0, (nextPage - 1) * pageSize);
       const qs = new URLSearchParams({
@@ -194,7 +179,6 @@ export function AdminPage() {
 
       const response = await fetch(`/api/admin/submissions?${qs.toString()}`, {
         headers: {
-          Authorization: `Bearer ${activeToken}`,
           Accept: "application/json",
         },
       });
@@ -203,19 +187,12 @@ export function AdminPage() {
         | { ok?: boolean; items?: Submission[]; error?: string; total?: number }
         | null;
 
-      if (response.status === 401) {
-        localStorage.removeItem("admin_token");
-        navigate("/admin/login?reason=unauthorized", { replace: true });
-        return;
-      }
-
       if (!response.ok || !data?.ok) throw new Error(data?.error || "Could not load submissions.");
 
       setItems(data.items ?? []);
       setTotal(typeof data.total === "number" ? data.total : 0);
       setSelected({});
       setPage(nextPage);
-      localStorage.setItem("admin_token", activeToken);
     } catch (err) {
       setItems([]);
       setTotal(0);
@@ -224,17 +201,6 @@ export function AdminPage() {
     } finally {
       setLoading(false);
     }
-  }
-
-  function signOut() {
-    localStorage.removeItem("admin_token");
-    setItems([]);
-    setTotal(0);
-    setSelected({});
-    setError(null);
-    setPage(1);
-    setQuery("");
-    navigate("/admin/login", { replace: true });
   }
 
   function toggleOne(id: string, next: boolean) {
@@ -255,7 +221,6 @@ export function AdminPage() {
     const response = await fetch(path, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${token}`,
         Accept: "application/json",
         "Content-Type": "application/json",
       },
@@ -265,12 +230,6 @@ export function AdminPage() {
     const data = (await response.json().catch(() => null)) as
       | { ok?: boolean; error?: string }
       | null;
-
-    if (response.status === 401) {
-      localStorage.removeItem("admin_token");
-      navigate("/admin/login?reason=unauthorized", { replace: true });
-      return;
-    }
 
     if (!response.ok || !data?.ok) throw new Error(data?.error || "Request failed.");
   }
@@ -333,18 +292,10 @@ export function AdminPage() {
                 variant="secondary"
                 className="h-9 px-3 text-xs"
                 onClick={() => load(page)}
-                disabled={!authed || loading}
+                disabled={loading}
                 aria-busy={loading}
               >
                 {loading ? "Loading…" : "Refresh"}
-              </Button>
-              <Button
-                variant="secondary"
-                className="h-9 px-3 text-xs"
-                onClick={signOut}
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                Sign out
               </Button>
             </div>
           </div>

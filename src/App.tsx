@@ -5,7 +5,6 @@ import { SiteHeader } from "@/components/site-header";
 import { ScrollToTop } from "@/app/scroll-to-top";
 import { ScrollToHash } from "@/app/scroll-to-hash";
 import { SiteBackground } from "@/components/site-background";
-import { AdminLoginPage } from "@/pages/admin-login";
 import { AdminPage } from "@/pages/admin";
 import { HomePage } from "@/pages/home";
 import { HomePageEditorial } from "@/pages/home-editorial";
@@ -60,11 +59,7 @@ function AnimatedRoutes() {
         />
         <Route
           path="/admin/login"
-          element={
-            <PageTransition>
-              <AdminLoginPage />
-            </PageTransition>
-          }
+          element={<Navigate to="/admin" replace />}
         />
       </Routes>
     </AnimatePresence>

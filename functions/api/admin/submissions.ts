@@ -28,12 +28,6 @@ type Ctx = {
 };
 
 export const onRequestGet = async (ctx: Ctx) => {
-  const expected = ctx.env?.ADMIN_TOKEN ?? "Aryeh";
-  if (!expected) return unauthorized();
-
-  const auth = ctx.request.headers.get("authorization") ?? "";
-  const token = auth.startsWith("Bearer ") ? auth.slice("Bearer ".length) : "";
-  if (!token || token !== expected) return unauthorized();
 
   const url = new URL(ctx.request.url);
   const limitRaw = parseInt(url.searchParams.get("limit") ?? "25", 10);

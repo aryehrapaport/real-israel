@@ -30,11 +30,6 @@ type Ctx = {
 };
 
 export const onRequestPost = async (ctx: Ctx) => {
-  const expected = ctx.env?.ADMIN_TOKEN ?? "Aryeh";
-  if (!expected) return unauthorized();
-
-  const token = getToken(ctx.request);
-  if (!token || token !== expected) return unauthorized();
 
   let body: unknown;
   try {
