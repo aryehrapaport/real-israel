@@ -31,7 +31,7 @@ export async function submitContactIntakeToFormSubmit(
   const recipient = import.meta.env.VITE_FORMSUBMIT_EMAIL as string | undefined;
 
   if (!recipient) {
-    console.error("[Formspree] Missing VITE_FORMSUBMIT_EMAIL. Email notification will not be sent.");
+    console.error("[FormSubmit] Missing VITE_FORMSUBMIT_EMAIL. Email notification will not be sent.");
     throw new Error("Missing VITE_FORMSUBMIT_EMAIL.");
   }
 
@@ -40,7 +40,7 @@ export async function submitContactIntakeToFormSubmit(
   let response: Response;
   try {
     response = await fetch(
-      `https://formspree.io/${encodeURIComponent(recipient)}`,
+      `https://formsubmit.co/ajax/${recipient}`,
       {
         method: "POST",
         headers: {
@@ -50,6 +50,7 @@ export async function submitContactIntakeToFormSubmit(
         body: JSON.stringify({
           ...values,
           _subject: options.subject,
+          _template: "table",
           _replyto: values.email,
           source: options.source,
           page_path: pagePath,
@@ -57,7 +58,7 @@ export async function submitContactIntakeToFormSubmit(
       },
     );
   } catch (err) {
-    console.error("[Formspree] Network error", {
+    console.error("[FormSubmit] Network error", {
       message: toErrorMessage(err),
       source: options.source,
       subject: options.subject,
@@ -67,16 +68,16 @@ export async function submitContactIntakeToFormSubmit(
   }
 
   if (!response.ok) {
-    const data = await response.json().catch(() => null) as { errors?: { message: string }[] } | null;
-    const msg = data?.errors?.[0]?.message ?? `Formspree failed (${response.status}).`;
-    console.error("[Formspree] Request failed", {
+    const text = await response.text().catch(() => "");
+    console.error("[FormSubmit] Request failed", {
       status: response.status,
-      error: msg,
+      statusText: response.statusText,
+      body: text?.slice(0, 2000) ?? "",
       source: options.source,
       subject: options.subject,
       page_path: pagePath,
     });
-    throw new Error(msg);
+    throw new Error(text || `FormSubmit failed (${response.status}).`);
   }
 }
 
