@@ -12,7 +12,7 @@ export const contactIntakeSchema = z.object({
     }),
   location: z.string().trim().optional(),
   timeline: z.string().trim().optional(),
-  message: z.string().min(20, "A short message helps us prepare."),
+  message: z.string().trim().optional(),
 });
 
 export type ContactIntakeValues = z.infer<typeof contactIntakeSchema>;
